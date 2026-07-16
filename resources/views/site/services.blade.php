@@ -1,0 +1,27 @@
+@extends('layouts.site')
+
+@section('title', 'Dịch vụ — '.$settings['brand_name'])
+
+@section('content')
+<section class="inner-hero"><span>DỊCH VỤ SỰ KIỆN</span><h1>Lựa chọn niềm vui cho buổi tiệc</h1><p>Xem từng nhóm dịch vụ, hình ảnh và bài viết liên quan. Khi cần tư vấn, hãy gọi điện hoặc nhắn Facebook.</p></section>
+<section class="party-section">
+    <x-navigation-trail />
+    <div class="service-grid service-page-grid">
+        @php($icons = ['🎈', '🎩', '🤡', '🍭', '🍿', '🌳', '🦫', '🫧', '🎵', '🎤'])
+        @forelse($categories as $i => $cat)
+            <a class="service-card tone-{{ ($i % 5) + 1 }}" href="{{ route('category', $cat) }}">
+                @if(optional($cat->page)->banner_image)
+                    <img class="service-image" src="{{ Str::contains($cat->page->banner_image, '/') ? asset('storage/'.$cat->page->banner_image) : asset('uploads/banners/'.$cat->page->banner_image) }}" alt="{{ $cat->page->banner_alt ?: $cat->name }}">
+                @else
+                    <span class="service-icon">{{ $icons[$i] ?? '🎉' }}</span>
+                @endif
+                <h3>{{ $cat->name }}</h3><p>{{ Str::limit($cat->description ?: 'Khám phá hình ảnh và nội dung của dịch vụ.', 120) }}</p>
+                <div class="service-meta"><span>{{ $cat->events_count }} bài viết</span><strong>Xem chi tiết →</strong></div>
+            </a>
+        @empty
+            <div class="empty-state">Admin chưa tạo dịch vụ nào.</div>
+        @endforelse
+    </div>
+</section>
+<section class="contact-banner compact"><div><h2>Chưa biết chọn dịch vụ nào?</h2><p>Gọi trực tiếp để được tư vấn theo loại tiệc, địa điểm và ngân sách.</p></div><div class="contact-actions"><a href="tel:{{ preg_replace('/\s+/', '', $settings['phone']) }}">☎ {{ $settings['phone'] }}</a>@if($settings['facebook'])<a href="{{ $settings['facebook'] }}" target="_blank" rel="noopener">Nhắn Facebook</a>@endif</div></section>
+@endsection
