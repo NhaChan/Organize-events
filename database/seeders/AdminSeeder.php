@@ -10,9 +10,13 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        Admin::updateOrCreate(
+        Admin::firstOrCreate(
             ['username' => 'admin'],
-            ['password' => Hash::make('admin123'), 'full_name' => 'Quản trị viên', 'email' => 'admin@eventblog.local']
+            [
+                'password' => Hash::make('admin123'),
+                'full_name' => 'Lê Thị Nhã Chân',
+                'email' => 'lethinhachan18@gmail.com',
+            ]
         );
     }
 }

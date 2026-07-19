@@ -52,3 +52,78 @@ D:\xampp2\php\php.exe artisan storage:link
 ## Lưu ý framework
 
 Composer đang ghi nhận advisory đối với nhánh Laravel 11. Dự án giữ đúng Laravel 11 theo yêu cầu và Composer được cấu hình cảnh báo thay vì chặn cài đặt. Trước khi triển khai production, chạy `composer audit` và cập nhật lên bản Laravel 11 đã vá ngay khi có.
+
+## Chạy dự án với Docker
+
+### Build và khởi động
+
+Build image:
+
+```bash
+docker compose build
+```
+
+Khởi động các container ở chế độ nền:
+
+```bash
+docker compose up -d
+```
+
+Cũng có thể build và khởi động bằng một lệnh:
+
+```bash
+docker compose up -d --build
+```
+
+Sau khi các container đã chạy, tạo bảng và dữ liệu mẫu cho database:
+
+```bash
+docker compose exec app php artisan migrate --seed
+```
+
+Website chạy tại `http://localhost:8080`. MySQL trên máy host được mở tại
+`127.0.0.1:3307` theo cấu hình mặc định trong `.env`.
+
+### Các lệnh thường dùng
+
+Kiểm tra trạng thái container:
+
+```bash
+docker compose ps
+```
+
+Theo dõi log của toàn bộ hệ thống hoặc riêng ứng dụng:
+
+```bash
+docker compose logs -f
+docker compose logs -f app
+```
+
+Chạy lệnh Artisan:
+
+```bash
+docker compose exec app php artisan optimize:clear
+docker compose exec app php artisan migrate
+docker compose exec app php artisan db:seed
+docker compose exec app php artisan test
+```
+
+Mở shell trong container PHP:
+
+```bash
+docker compose exec app bash
+```
+
+Khởi động lại hoặc dừng hệ thống:
+
+```bash
+docker compose restart
+docker compose down
+```
+
+Để xóa cả container và dữ liệu MySQL trong volume, dùng lệnh sau. Lệnh này sẽ
+xóa toàn bộ dữ liệu database Docker:
+
+```bash
+docker compose down -v
+```

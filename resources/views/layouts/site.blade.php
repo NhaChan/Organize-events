@@ -7,6 +7,8 @@
     <meta property="og:locale" content="vi_VN"><meta property="og:type" content="@yield('og_type', 'website')"><meta property="og:site_name" content="{{ $settings['brand_name'] }}"><meta property="og:title" content="@yield('title', $settings['brand_name'])"><meta property="og:description" content="@yield('description', $settings['about'])"><meta property="og:url" content="@yield('canonical', url()->current())">
     @hasSection('og_image')<meta property="og:image" content="@yield('og_image')">@endif
     <meta name="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/png" sizes="256x256" href="{{ asset('images/nina-nina-icon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/nina-nina-icon.png') }}">
     <script type="application/ld+json">{!! json_encode(['@context'=>'https://schema.org','@type'=>'LocalBusiness','name'=>$settings['brand_name'],'description'=>$settings['about'],'telephone'=>$settings['phone'],'address'=>$settings['address'],'url'=>route('home'),'sameAs'=>array_values(array_filter([$settings['facebook'],$settings['fanpage']]))], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!}</script>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="{{ asset('css/party.css') }}" rel="stylesheet"><link href="{{ asset('css/home.css') }}" rel="stylesheet"><link href="{{ asset('css/navigation.css') }}" rel="stylesheet"><link href="{{ asset('css/category-page.css') }}" rel="stylesheet">

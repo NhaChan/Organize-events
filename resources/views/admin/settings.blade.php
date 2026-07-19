@@ -21,7 +21,7 @@
 </section>
 
 <aside>
-<section class="section-card security-card">
+<!-- <section class="section-card security-card">
     <div class="form-card-icon">📧</div><h2 class="section-title">Email bảo mật</h2><p class="form-help">Email này không hiển thị ngoài website. Link đặt lại mật khẩu chỉ được gửi về đây.</p>
     @if(Str::endsWith(auth('admin')->user()->email, '.local'))<div class="security-warning">Email hiện tại là email mẫu, chưa thể nhận thư thật. Hãy đổi thành Gmail hoặc email doanh nghiệp.</div>@endif
     <form method="post" action="{{ route('admin.account.email.update') }}" data-confirm="Bạn chắc chắn muốn thay đổi email nhận liên kết khôi phục tài khoản?" data-confirm-title="Đổi email bảo mật">
@@ -30,7 +30,7 @@
         <div class="form-group"><label class="form-label">Mật khẩu hiện tại để xác nhận</label><input type="password" class="form-control-custom" name="current_password" required autocomplete="current-password"></div>
         <button class="btn-primary-custom">Cập nhật email</button>
     </form>
-</section>
+</section> -->
 
 <section class="section-card security-card">
     <div class="form-card-icon">🔐</div><h2 class="section-title">Đổi mật khẩu qua email</h2><p class="form-help">Hệ thống gửi liên kết bảo mật có hiệu lực 30 phút. Không đổi mật khẩu trực tiếp trong trang admin.</p>
