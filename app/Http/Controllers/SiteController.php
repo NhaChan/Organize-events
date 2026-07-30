@@ -11,7 +11,14 @@ class SiteController extends Controller
 {
     private function base(array $data = []): array
     {
-        return array_merge(['settings' => SiteSettings::all()], $data);
+        return array_merge([
+            'settings' => SiteSettings::all(),
+            'navigationCategories' => Category::query()
+                ->whereNull('parent_id')
+                ->with(['children' => fn ($query) => $query->orderBy('name')])
+                ->orderBy('name')
+                ->get(),
+        ], $data);
     }
 
     public function home()
@@ -46,7 +53,11 @@ class SiteController extends Controller
                     ->orWhere('summary', 'like', "%{$keyword}%"));
             })
             ->when($request->string('category')->toString(), function ($query, $slug) {
-                $query->whereHas('category', fn ($categoryQuery) => $categoryQuery->where('slug', $slug));
+                $category = Category::where('slug', $slug)->first();
+
+                if ($category) {
+                    $query->whereIn('category_id', $this->descendantIds($category));
+                }
             })
             ->latest()
             ->paginate(12)
@@ -54,7 +65,7 @@ class SiteController extends Controller
 
         return view('site.events', $this->base([
             'events' => $events,
-            'categories' => Category::orderBy('name')->get(),
+            'categories' => Category::with('parent')->orderBy('name')->get(),
         ]));
     }
 
@@ -87,7 +98,7 @@ class SiteController extends Controller
     public function event(Event $event)
     {
         abort_unless($event->status === 'published', 404);
-        $event->increment('view_count');
+        Event::withoutTimestamps(fn () => $event->increment('view_count'));
 
         return view('site.event', $this->base([
             'event' => $event->load('category.parent', 'images'),

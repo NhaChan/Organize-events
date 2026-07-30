@@ -1,6 +1,8 @@
 @extends('layouts.site')
 
 @section('title', 'Dịch vụ — '.$settings['brand_name'])
+@section("description", "Dịch vụ trang trí, biểu diễn và giải trí sự kiện của ".$settings["brand_name"].". Xem hình ảnh thực tế và liên hệ tư vấn.")
+@section("canonical", \App\Support\SeoUrl::route("services"))
 
 @section('content')
 <section class="inner-hero"><span>DỊCH VỤ SỰ KIỆN</span><h1>Lựa chọn niềm vui cho buổi tiệc</h1><p>Xem từng nhóm dịch vụ, hình ảnh và bài viết liên quan. Khi cần tư vấn, hãy gọi điện hoặc nhắn Facebook.</p></section>

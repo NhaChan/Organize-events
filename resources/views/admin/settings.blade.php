@@ -16,6 +16,7 @@
         <div class="form-row"><div class="form-group"><label class="form-label">Facebook cá nhân</label><input type="url" class="form-control-custom" name="facebook" value="{{ old('facebook', $settings['facebook']) }}"></div><div class="form-group"><label class="form-label">Fanpage</label><input type="url" class="form-control-custom" name="fanpage" value="{{ old('fanpage', $settings['fanpage']) }}"></div></div>
         <div class="form-group"><label class="form-label">Địa chỉ / khu vực phục vụ</label><input class="form-control-custom" name="address" value="{{ old('address', $settings['address']) }}"></div>
         <div class="form-group"><label class="form-label">Giới thiệu ngắn</label><textarea class="form-control-custom textarea" name="about" rows="5">{{ old('about', $settings['about']) }}</textarea></div>
+        @include('admin.partials.seo-settings')
         <button class="btn-primary-custom">Lưu thông tin</button>
     </form>
 </section>

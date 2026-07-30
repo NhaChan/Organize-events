@@ -8,7 +8,18 @@ class SiteSettings
 {
     public static function defaults(): array
     {
-        return ['brand_name' => 'Minh Triệu Party', 'tagline' => 'Biến ngày vui thành kỷ niệm đáng nhớ', 'phone' => '0909 000 000', 'facebook' => 'https://www.facebook.com/minh.trieu.715595', 'fanpage' => 'https://www.facebook.com/minh.trieu.715595', 'address' => 'TP. Hồ Chí Minh', 'about' => 'Chuyên trang trí và cung cấp dịch vụ giải trí cho sinh nhật, thôi nôi, khai trương, trường học và sự kiện gia đình.'];
+        return [
+            'brand_name' => 'Minh Triệu Party',
+            'tagline' => 'Biến ngày vui thành kỷ niệm đáng nhớ',
+            'phone' => '0909 000 000',
+            'facebook' => 'https://www.facebook.com/minh.trieu.715595',
+            'fanpage' => 'https://www.facebook.com/minh.trieu.715595',
+            'address' => 'TP. Hồ Chí Minh',
+            'about' => 'Chuyên trang trí và cung cấp dịch vụ giải trí cho sinh nhật, thôi nôi, khai trương, trường học và sự kiện gia đình.',
+            'seo_indexing' => (bool) config('seo.indexing_enabled'),
+            'robots_allow' => implode("\n", config('seo.robots.allow', [])),
+            'robots_disallow' => implode("\n", config('seo.robots.disallow', [])),
+        ];
     }
 
     public static function all(): array

@@ -2,9 +2,9 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SeoController;
 use App\Http\Controllers\SiteController;
 use App\Models\Category;
-use App\Models\Event;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', fn () => redirect()->route('admin.login'))->name('login');
@@ -16,18 +16,9 @@ Route::get('/bai-viet', [SiteController::class, 'events'])->name('events');
 Route::get('/bai-viet/{event:slug}', [SiteController::class, 'event'])->name('event');
 Route::get('/danh-muc/{category:slug}', fn (Category $category) => redirect()->route('category', $category, 301));
 
-Route::get('/sitemap.xml', function () {
-    return response()->view('site.sitemap', [
-        'categories' => Category::all(),
-        'events' => Event::where('status', 'published')->get(),
-    ])->header('Content-Type', 'application/xml');
-})->name('sitemap');
-
-Route::get('/robots.txt', fn () => response(
-    "User-agent: *\nAllow: /\nDisallow: /admin\nSitemap: ".route('sitemap')."\n",
-    200,
-    ['Content-Type' => 'text/plain']
-));
+Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
+Route::get('/sitemap.xsl', fn () => response()->file(resource_path('seo/sitemap.xsl'), ['Content-Type' => 'application/xml; charset=UTF-8']))->name('sitemap.stylesheet');
+Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('guest:admin')->group(function () {

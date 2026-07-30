@@ -217,7 +217,17 @@ class AdminController extends Controller
             'fanpage' => ['nullable', 'url', 'max:255'],
             'address' => ['nullable', 'string', 'max:255'],
             'about' => ['nullable', 'string', 'max:2000'],
+            'seo_indexing' => ['required', 'boolean'],
+            'robots_allow' => ['nullable', 'string', 'max:2000'],
+            'robots_disallow' => ['nullable', 'string', 'max:2000'],
         ]);
+        foreach (['robots_allow', 'robots_disallow'] as $field) {
+            $data[$field] = collect(preg_split('/\R/', $data[$field] ?? '') ?: [])
+                ->map(fn (string $path) => trim($path))
+                ->filter(fn (string $path) => Str::startsWith($path, '/'))
+                ->unique()
+                ->implode("\n");
+        }
         SiteSettings::save($data);
 
         return back()->with('success', 'Đã cập nhật thông tin website.');

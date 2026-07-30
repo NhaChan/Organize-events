@@ -45,6 +45,7 @@ D:\xampp2\php\php.exe artisan storage:link
 
 - Trang chủ, danh sách dịch vụ, danh mục nhiều cấp, danh sách và chi tiết bài viết.
 - Tìm kiếm/lọc bài viết, bộ đếm lượt xem, SEO meta, Open Graph, schema và sitemap.
+- Sitemap XML tự cập nhật tại `/sitemap.xml`; robots tại `/robots.txt` có thể quản lý trong **Admin → Cấu hình website**.
 - Admin riêng: đăng nhập, dashboard, CRUD bài viết/danh mục, trạng thái nháp/đăng/lưu trữ.
 - Upload ảnh đại diện, nhiều ảnh phụ và xóa ảnh.
 - Biên tập trang dịch vụ: banner, ảnh minh họa, nội dung, ba điểm nổi bật và CTA.

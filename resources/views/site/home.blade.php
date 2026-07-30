@@ -2,6 +2,7 @@
 
 @section('title', $settings['brand_name'].' — Trang trí tiệc và dịch vụ sự kiện')
 @section('description', 'Dịch vụ trang trí tiệc, biểu diễn, ẩm thực và giải trí sự kiện của '.$settings['brand_name'].'. Xem hình ảnh thực tế và liên hệ tư vấn nhanh.')
+@section("canonical", \App\Support\SeoUrl::route("home"))
 
 @section('content')
 @php
