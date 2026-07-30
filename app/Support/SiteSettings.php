@@ -9,7 +9,7 @@ class SiteSettings
     public static function defaults(): array
     {
         return [
-            'brand_name' => 'Minh Triệu Party',
+            'brand_name' => 'Minh Triều Party',
             'tagline' => 'Biến ngày vui thành kỷ niệm đáng nhớ',
             'phone' => '0909 000 000',
             'facebook' => 'https://www.facebook.com/minh.trieu.715595',

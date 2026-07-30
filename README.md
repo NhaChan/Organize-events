@@ -1,4 +1,4 @@
-# Minh Triệu Party — Laravel 11
+# Minh Triều Party — Laravel 11
 
 Bản chuyển đổi từ source PHP thuần sang Laravel 11.55, giữ các chức năng public/admin và dùng giao diện responsive tone hồng–cam.
 

@@ -2,7 +2,7 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "minh-trieu/event-blog",
     "type": "project",
-    "description": "Website giới thiệu dịch vụ và quản trị bài viết SEO cho Minh Triệu Party.",
+    "description": "Website giới thiệu dịch vụ và quản trị bài viết SEO cho Minh Triều Party.",
     "keywords": ["laravel", "seo", "event", "party"],
     "license": "MIT",
     "require": {

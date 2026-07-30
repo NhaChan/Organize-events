@@ -17,7 +17,7 @@
             ? trim($__env->yieldContent("robots", "index,follow,max-image-preview:large"))
             : "noindex,nofollow,noarchive";
     @endphp
-    <title>@yield("title", $settings["brand_name"] ?? "Minh Triệu Party")</title>
+    <title>@yield("title", $settings["brand_name"] ?? "Minh Triều Party")</title>
     <meta name="description" content="@yield("description", $settings["about"] ?? "")">
     <meta name="robots" content="{{ $robotsDirective }}">
     <link rel="canonical" href="{{ $canonicalUrl }}">

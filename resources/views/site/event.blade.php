@@ -41,7 +41,7 @@
 <script type="application/ld+json">{!! json_encode($articleSchema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
 <x-navigation-trail :category="$event->category" :current="$event->title" />
 <article class="article">
-    <div class="article-category">{{ optional($event->category)->name }}</div>
+    <!-- <div class="article-category">{{ optional($event->category)->name }}</div> -->
     <h1>{{ $event->title }}</h1>
     <p class="meta">
         Đăng ngày {{ $event->created_at->format('d/m/Y') }}
@@ -52,14 +52,24 @@
     @if($thumbnail)
         <img class="cover" src="{{ $thumbnail }}" alt="{{ $event->title }}">
     @endif
-    <p class="lead">{{ $event->summary }}</p>
-    <div class="prose">{!! nl2br(e($event->content)) !!}</div>
-    @foreach($event->images as $img)
-        <figure>
-            <img class="cover" loading="lazy" src="{{ \App\Support\SeoUrl::asset('storage/'.$img->image_path) }}" alt="{{ $img->alt_text ?: $event->title }}">
-            @if($img->alt_text)<figcaption>{{ $img->alt_text }}</figcaption>@endif
-        </figure>
-    @endforeach
+    @if($event->summary)<p class="lead">{{ $event->summary }}</p>@endif
+    @if($event->content)
+        <section class="event-content">
+            <h2>Thông tin chi tiết về {{ $event->title }}</h2>
+            <div class="prose">{!! nl2br(e($event->content)) !!}</div>
+        </section>
+    @endif
+    @if($event->images->isNotEmpty())
+        <section class="event-gallery">
+            <h2>Hình ảnh {{ $event->title }}</h2>
+            @foreach($event->images as $img)
+                <figure>
+                    <img class="cover" loading="lazy" src="{{ \App\Support\SeoUrl::asset("storage/".$img->image_path) }}" alt="{{ $img->alt_text ?: $event->title }}">
+                    @if($img->alt_text)<figcaption>{{ $img->alt_text }}</figcaption>@endif
+                </figure>
+            @endforeach
+        </section>
+    @endif
     <div class="event-actions">
         <a class="btn" href="tel:{{ preg_replace('/\s+/', '', $settings['phone']) }}">☎ Gọi {{ $settings['phone'] }}</a>
         @if($settings['facebook'])

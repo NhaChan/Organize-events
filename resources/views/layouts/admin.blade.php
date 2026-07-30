@@ -16,7 +16,7 @@
 <aside class="sidebar" id="admin-sidebar">
     <a class="sidebar-brand" href="{{ route('admin.dashboard') }}">
         <span class="sidebar-logo">🎈</span>
-        <span class="sidebar-brand-text">Minh Triệu Party<small>Quản trị nội dung SEO</small></span>
+        <span class="sidebar-brand-text">Minh Triều Party<small>Quản trị nội dung SEO</small></span>
     </a>
 
     <nav class="sidebar-nav">

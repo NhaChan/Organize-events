@@ -14,7 +14,7 @@ class EventBlogTest extends TestCase
 {
     public function test_public_pages_render_successfully(): void
     {
-        $this->get('/')->assertOk()->assertSee('Minh Triệu Party');
+        $this->get('/')->assertOk()->assertSee('Minh Triều Party');
         $this->get('/dich-vu')->assertOk()->assertSee('DỊCH VỤ SỰ KIỆN');
         $this->get('/bai-viet')->assertOk();
         $this->get('/sitemap.xml')->assertOk();

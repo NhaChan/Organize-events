@@ -27,6 +27,7 @@
 
 @if($page && collect([1, 2, 3])->contains(fn ($i) => $page->{'feat'.$i.'_title'}))
 <section class="feature-strip">
+    <h2 class="sr-only">Điểm nổi bật của dịch vụ {{ $category->name }}</h2>
     @for($i = 1; $i <= 3; $i++)
         @if($page->{'feat'.$i.'_title'})<div><b>{{ $page->{'feat'.$i.'_icon'} ?: '✓' }}</b><h3>{{ $page->{'feat'.$i.'_title'} }}</h3><p>{{ $page->{'feat'.$i.'_desc'} }}</p></div>@endif
     @endfor

@@ -22,7 +22,7 @@ class AdminResetPasswordNotification extends Notification
         $url = route('admin.password.reset', ['token' => $this->token, 'email' => $notifiable->email]);
 
         return (new MailMessage)
-            ->subject('Đặt lại mật khẩu quản trị Minh Triệu Party')
+            ->subject('Đặt lại mật khẩu quản trị Minh Triều Party')
             ->greeting('Xin chào '.$notifiable->full_name.',')
             ->line('Hệ thống nhận được yêu cầu đặt lại mật khẩu cho tài khoản quản trị của bạn.')
             ->action('Đặt lại mật khẩu', $url)
