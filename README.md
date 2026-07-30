@@ -11,7 +11,8 @@ Project hiện chạy bằng XAMPP PHP 8.2 tại `D:\xampp2`.
 3. Mở `http://localhost/event-blog-laravel11/public/`.
 4. Admin: `http://localhost/event-blog-laravel11/public/admin/login`.
 
-Tài khoản ban đầu: `admin` / `admin123`. Hãy đổi mật khẩu trước khi đưa website lên internet.
+Trước khi seed dữ liệu, đặt `ADMIN_SEED_USERNAME` và `ADMIN_SEED_PASSWORD`
+trong file `.env`. Không commit file `.env` lên Git.
 
 Có thể chạy lệnh Artisan trong XAMPP Shell hoặc PowerShell:
 

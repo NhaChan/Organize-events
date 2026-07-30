@@ -42,7 +42,10 @@ class EventBlogTest extends TestCase
 
     public function test_admin_can_login_with_seeded_credentials(): void
     {
-        $this->post('/admin/login', ['username' => 'admin', 'password' => 'admin123'])
+        $this->post('/admin/login', [
+            'username' => env('ADMIN_SEED_USERNAME'),
+            'password' => env('ADMIN_SEED_PASSWORD'),
+        ])
             ->assertRedirect(route('admin.dashboard'));
 
         $this->assertAuthenticated('admin');
