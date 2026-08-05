@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+    <defs>
+        <radialGradient id="balloon" cx="32%" cy="24%" r="80%">
+            <stop offset="0" stop-color="#ff6b78"/>
+            <stop offset="0.52" stop-color="#f33445"/>
+            <stop offset="1" stop-color="#c9152a"/>
+        </radialGradient>
+    </defs>
+    <ellipse cx="124" cy="92" rx="70" ry="82" fill="url(#balloon)"/>
+    <ellipse cx="96" cy="53" rx="13" ry="25" fill="#fff" opacity=".32" transform="rotate(28 96 53)"/>
+    <path d="M113 171h22l-10 19z" fill="#c9152a"/>
+    <path d="M125 189c9 17-13 21 0 38 7 9-3 17-8 25" fill="none" stroke="#7b2d35" stroke-width="3" stroke-linecap="round"/>
+</svg>

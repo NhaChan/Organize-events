@@ -16,7 +16,9 @@
                 <div class="nav-service-row">
                     <a class="nav-service-link" href="{{ route('services') }}">Dịch vụ</a>
                     <button class="nav-service-toggle" type="button" aria-label="Mở danh sách dịch vụ" aria-expanded="false" aria-controls="service-mega-menu" data-service-toggle>
-                        <span aria-hidden="true">⌄</span>
+                        <svg aria-hidden="true" viewBox="0 0 12 8" focusable="false">
+                            <path d="M1 1.25 6 6.25l5-5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
                     </button>
                 </div>
 

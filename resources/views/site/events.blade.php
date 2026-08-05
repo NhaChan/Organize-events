@@ -7,7 +7,7 @@
     $selectedCategory = $categories->firstWhere('slug', request('category'));
 @endphp
 
-@section('title', 'Bài viết và hình ảnh sự kiện — '.$settings['brand_name'])
+@section('title', 'Bài viết và hình ảnh sự kiện - '.$settings['brand_name'])
 @section('description', 'Hình ảnh, mẫu trang trí và bài viết dịch vụ sự kiện của '.$settings['brand_name'])
 @section('canonical', \App\Support\SeoUrl::route('events', [], $canonicalQuery))
 @if($hasFilters)
@@ -19,14 +19,13 @@
 @endpush
 
 @section('content')
+<x-navigation-trail :page-label="'Bài viết & hình ảnh'" />
 <section class="inner-hero">
     <span>BÀI VIẾT & HÌNH ẢNH</span>
     <h1>Ý tưởng cho ngày vui</h1>
     <p>Xem các mẫu trang trí, tiết mục và sự kiện chúng tôi đã đăng tải.</p>
 </section>
 <section class="party-section event-listing">
-    <x-navigation-trail />
-
     <section class="event-filter-card" aria-labelledby="event-filter-title">
         <div class="event-filter-heading">
             <div>
@@ -52,7 +51,7 @@
                     <option value="">Tất cả dịch vụ</option>
                     @foreach($categories as $cat)
                         <option value="{{ $cat->slug }}" @selected(request('category') === $cat->slug)>
-                            {{ $cat->parent ? '— '.$cat->name : $cat->name }}
+                            {{ $cat->parent ? '- '.$cat->name : $cat->name }}
                         </option>
                     @endforeach
                 </select>

@@ -1,6 +1,6 @@
 @extends('layouts.site')
 
-@section('title', $settings['brand_name'].' — Trang trí tiệc và dịch vụ sự kiện')
+@section('title', $settings['brand_name'].' - Trang trí tiệc và dịch vụ sự kiện')
 @section('description', 'Dịch vụ trang trí tiệc, biểu diễn, ẩm thực và giải trí sự kiện của '.$settings['brand_name'].'. Xem hình ảnh thực tế và liên hệ tư vấn nhanh.')
 @section("canonical", \App\Support\SeoUrl::route("home"))
 
@@ -27,13 +27,13 @@
 
 <section class="party-hero home-hero">
     <div class="hero-bubbles"><i></i><i></i><i></i></div>
-    <div class="hero-copy">
+    <!-- <div class="hero-copy">
         <span class="eyebrow">🎉 Tổ chức ngày vui theo cách của bạn</span>
         <h1>Ngày vui rực rỡ,<br><em>kỷ niệm thật lâu</em></h1>
         <p>{{ $settings['about'] }}</p>
         <div class="hero-buttons"><a class="party-btn primary" href="#dich-vu-noi-bat">Khám phá dịch vụ <span>→</span></a><a class="party-btn light" href="tel:{{ preg_replace('/\s+/', '', $settings['phone']) }}">☎ Gọi tư vấn {{ $settings['phone'] }}</a></div>
         <div class="trust-row"><span>✓ Hình ảnh thực tế</span><span>✓ Dịch vụ đa dạng</span><span>✓ Tư vấn trực tiếp</span></div>
-    </div>
+    </div> -->
     <div class="hero-showcase">
         @if($heroImage)<img src="{{ $heroImage }}" alt="{{ $heroAlt }}" fetchpriority="high">@else<div class="hero-image-fallback">🎈</div>@endif
         <div class="hero-photo-shade"></div>

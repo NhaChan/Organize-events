@@ -1,13 +1,13 @@
 @extends('layouts.site')
 
-@section('title', 'Dịch vụ — '.$settings['brand_name'])
+@section('title', 'Dịch vụ - '.$settings['brand_name'])
 @section("description", "Dịch vụ trang trí, biểu diễn và giải trí sự kiện của ".$settings["brand_name"].". Xem hình ảnh thực tế và liên hệ tư vấn.")
 @section("canonical", \App\Support\SeoUrl::route("services"))
 
 @section('content')
+<x-navigation-trail page-label="Dịch vụ" />
 <section class="inner-hero"><span>DỊCH VỤ SỰ KIỆN</span><h1>Lựa chọn niềm vui cho buổi tiệc</h1><p>Xem từng nhóm dịch vụ, hình ảnh và bài viết liên quan. Khi cần tư vấn, hãy gọi điện hoặc nhắn Facebook.</p></section>
 <section class="party-section">
-    <x-navigation-trail />
     <div class="section-heading left"><span>DANH MỤC DỊCH VỤ</span><h2>Khám phá dịch vụ phù hợp</h2><p>Chọn nhóm dịch vụ để xem thông tin, hình ảnh thực tế và các bài viết liên quan.</p></div>
     <div class="service-grid service-page-grid">
         @php($icons = ['🎈', '🎩', '🤡', '🍭', '🍿', '🌳', '🦫', '🫧', '🎵', '🎤'])

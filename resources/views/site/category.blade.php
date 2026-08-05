@@ -1,6 +1,6 @@
 @extends('layouts.site')
 
-@section('title', ($category->page->page_title ?? $category->name).' — '.$settings['brand_name'])
+@section('title', ($category->page->page_title ?? $category->name).' - '.$settings['brand_name'])
 @section('description', Str::limit($category->description ?: 'Thông tin và hình ảnh dịch vụ '.$category->name, 155, ''))
 @section("canonical", \App\Support\SeoUrl::route("category", $category, request()->integer("page", 1) > 1 ? ["page" => request()->integer("page")] : []))
 

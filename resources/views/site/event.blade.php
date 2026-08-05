@@ -29,7 +29,7 @@
     ];
 @endphp
 
-@section('title', $event->meta_title ?: $event->title.' — '.$settings['brand_name'])
+@section('title', $event->meta_title ?: $event->title.' - '.$settings['brand_name'])
 @section('description', $event->meta_description ?: Str::limit($event->summary, 155, ''))
 @section('canonical', $canonical)
 @section('og_type', 'article')
