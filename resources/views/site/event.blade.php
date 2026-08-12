@@ -72,7 +72,7 @@
         · 👁 {{ $event->view_count }}
     </p>
     @if($thumbnail)
-        <img class="cover" src="{{ $thumbnail }}" alt="{{ $event->title }}">
+        <img class="cover" src="{{ $thumbnail }}" alt="{{ $event->thumbnail_alt ?: $event->title }}">
     @endif
     @if($event->summary)<p class="lead">{{ $event->summary }}</p>@endif
     @if($event->content)

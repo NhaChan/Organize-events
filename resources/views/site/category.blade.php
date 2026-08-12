@@ -27,7 +27,21 @@
     @endif
     <h2>Bài viết về {{ $category->name }}</h2>
     <div class="post-grid">@forelse($events as $event)<x-event-card :event="$event" />@empty<div class="empty-state">Dịch vụ này chưa có bài viết. Vui lòng liên hệ để được tư vấn trực tiếp.</div>@endforelse</div>
-    {{ $events->links() }}
+    @if($events->hasPages())
+        <nav class="category-pagination" aria-label="Phân trang bài viết">
+            @if($events->onFirstPage())
+                <span class="disabled" aria-disabled="true">← Trang trước</span>
+            @else
+                <a href="{{ $events->previousPageUrl() }}" rel="prev">← Trang trước</a>
+            @endif
+            <span class="page-status">Trang {{ $events->currentPage() }} / {{ $events->lastPage() }}</span>
+            @if($events->hasMorePages())
+                <a href="{{ $events->nextPageUrl() }}" rel="next">Trang sau →</a>
+            @else
+                <span class="disabled" aria-disabled="true">Trang sau →</span>
+            @endif
+        </nav>
+    @endif
 </section>
 
 @if(request()->integer('page', 1) === 1)

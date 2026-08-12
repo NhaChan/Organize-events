@@ -91,7 +91,7 @@ class SiteController extends Controller
                 ->whereIn('category_id', $categoryIds)
                 ->where('status', 'published')
                 ->latest()
-                ->paginate(12),
+                ->paginate(6),
         ]));
     }
 

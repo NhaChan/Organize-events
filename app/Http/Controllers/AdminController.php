@@ -60,7 +60,12 @@ class AdminController extends Controller
     public function saveEvent(Request $request, ?Event $event = null)
     {
         $event ??= new Event;
+        $isCreating = ! $event->exists;
+        $normalizedSlug = filled($request->input('slug'))
+            ? Str::slug($request->input('slug'))
+            : (filled($request->input('title')) ? Str::slug($request->input('title')) : null);
         $request->merge([
+            'slug' => $normalizedSlug,
             'content' => PostContent::sanitize($request->input('content')),
             'image_contents' => $this->sanitizeContentList($request->input('image_contents')),
             'existing_image_contents' => $this->sanitizeContentList($request->input('existing_image_contents')),
@@ -80,8 +85,9 @@ class AdminController extends Controller
             'status' => ['required', Rule::in(['draft', 'published', 'archived'])],
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:255'],
-            'thumbnail' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
-            'extra_images' => ['nullable', 'array', 'max:12'],
+            'thumbnail' => [Rule::requiredIf($request->boolean('had_thumbnail_upload') && blank($event->thumbnail)), 'nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
+            'thumbnail_alt' => [Rule::requiredIf($request->hasFile('thumbnail') || filled($event->thumbnail)), 'nullable', 'string', 'max:255'],
+            'extra_images' => [Rule::requiredIf($request->boolean('had_extra_images_upload')), 'nullable', 'array', 'max:12'],
             'extra_images.*' => ['image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
             'alt_texts' => ['nullable', 'array'],
             'alt_texts.*' => ['nullable', 'string', 'max:255'],
@@ -95,11 +101,36 @@ class AdminController extends Controller
             'existing_image_titles.*' => ['nullable', 'string', 'max:255'],
             'existing_image_contents' => ['nullable', 'array'],
             'existing_image_contents.*' => ['nullable', 'string'],
+            'had_thumbnail_upload' => ['nullable', 'boolean'],
+            'had_extra_images_upload' => ['nullable', 'boolean'],
+        ], [
+            'summary.required_if' => 'Tóm tắt là bắt buộc khi trạng thái là Đã đăng.',
+            'content.required_if' => 'Nội dung chi tiết là bắt buộc khi trạng thái là Đã đăng.',
+            'slug.unique' => 'Slug URL này đã tồn tại. Vui lòng nhập slug khác.',
+            'thumbnail_alt.required' => 'Vui lòng nhập Alt cho ảnh chính.',
+            'thumbnail.required' => 'Ảnh chính đã bị trình duyệt xóa sau lần báo lỗi. Vui lòng chọn lại ảnh chính.',
+            'thumbnail.max' => 'Ảnh chính không được lớn hơn 5MB.',
+            'thumbnail.image' => 'Ảnh chính phải là một tệp hình ảnh hợp lệ.',
+            'extra_images.max' => 'Chỉ được tải tối đa 12 ảnh phụ.',
+            'extra_images.required' => 'Ảnh phụ đã bị trình duyệt xóa sau lần báo lỗi. Vui lòng chọn lại ảnh phụ.',
+            'extra_images.*.max' => 'Mỗi ảnh phụ không được lớn hơn 5MB.',
+        ], [
+            'title' => 'Tiêu đề',
+            'slug' => 'Slug URL',
+            'category_id' => 'Dịch vụ / danh mục',
+            'summary' => 'Tóm tắt',
+            'content' => 'Nội dung chi tiết',
+            'thumbnail' => 'Ảnh chính',
+            'thumbnail_alt' => 'Alt ảnh chính',
+            'extra_images' => 'Ảnh phụ',
+            'alt_texts.*' => 'Alt ảnh phụ',
+            'original_price' => 'Giá gốc',
+            'sale_price' => 'Giá giảm',
+            'meta_title' => 'Meta Title',
+            'meta_description' => 'Meta Description',
         ]);
 
-        unset($data['extra_images'], $data['alt_texts'], $data['image_titles'], $data['image_contents'], $data['existing_alt_texts'], $data['existing_image_titles'], $data['existing_image_contents']);
-        $data['slug'] = $data['slug'] ? Str::slug($data['slug']) : Str::slug($data['title']);
-
+        unset($data['extra_images'], $data['alt_texts'], $data['image_titles'], $data['image_contents'], $data['existing_alt_texts'], $data['existing_image_titles'], $data['existing_image_contents'], $data['had_thumbnail_upload'], $data['had_extra_images_upload']);
         if ($request->hasFile('thumbnail')) {
             $this->removeFile($event->thumbnail);
             $data['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
@@ -108,9 +139,9 @@ class AdminController extends Controller
         $event->fill($data)->save();
 
         $existingImageIds = collect([
-            array_keys($request->input('existing_alt_texts', [])),
-            array_keys($request->input('existing_image_titles', [])),
-            array_keys($request->input('existing_image_contents', [])),
+            array_keys((array) $request->input('existing_alt_texts', [])),
+            array_keys((array) $request->input('existing_image_titles', [])),
+            array_keys((array) $request->input('existing_image_contents', [])),
         ])->flatten()->unique();
 
         foreach ($existingImageIds as $imageId) {
@@ -126,7 +157,7 @@ class AdminController extends Controller
 
         $nextSort = (int) $event->images()->max('sort_order') + 1;
 
-        foreach ($request->file('extra_images', []) as $index => $file) {
+        foreach ((array) $request->file('extra_images', []) as $index => $file) {
             $event->images()->create([
                 'image_path' => $file->store('events', 'public'),
                 'title' => filled($request->input("image_titles.{$index}"))
@@ -140,7 +171,11 @@ class AdminController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.events.edit', $event)->with('success', 'Đã lưu bài viết.');
+        if ($isCreating) {
+            return redirect()->route('admin.events.create')->with('success', 'Đã thêm bài viết. Form đã được làm trống để bạn có thể nhập bài mới.');
+        }
+
+        return redirect()->route('admin.events.edit', $event)->with('success', 'Đã cập nhật bài viết.');
     }
 
     private function sanitizeContentList(mixed $contents): mixed

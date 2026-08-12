@@ -12,7 +12,7 @@
 
     if ($heroEvent) {
         $heroImage = Str::startsWith($heroEvent->thumbnail, 'thumbnails/') ? asset('storage/'.$heroEvent->thumbnail) : asset('uploads/thumbnails/'.$heroEvent->thumbnail);
-        $heroAlt = $heroEvent->title;
+        $heroAlt = $heroEvent->thumbnail_alt ?: $heroEvent->title;
     } elseif ($heroCategory?->page?->service_image) {
         $heroImage = Str::contains($heroCategory->page->service_image, '/') ? asset('storage/'.$heroCategory->page->service_image) : asset('uploads/services/'.$heroCategory->page->service_image);
         $heroAlt = $heroCategory->page->service_image_alt ?: $heroCategory->name;
