@@ -14,5 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->respond(function ($response) {
+            if ($response->getStatusCode() === 404) {
+                return redirect()->route('home');
+            }
+
+            return $response;
+        });
     })->create();

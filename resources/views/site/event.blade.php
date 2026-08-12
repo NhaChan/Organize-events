@@ -75,6 +75,7 @@
         <img class="cover" src="{{ $thumbnail }}" alt="{{ $event->title }}">
     @endif
     @if($event->summary)<p class="lead">{{ $event->summary }}</p>@endif
+    <x-event-price :event="$event" class="product-price-detail" />
     @if($event->content)
         <section class="event-content">
             <h2>Thông tin chi tiết về {{ $event->title }}</h2>
@@ -83,7 +84,7 @@
     @endif
     @if($event->images->isNotEmpty())
         <section class="event-gallery">
-            <h2>Hình ảnh {{ $event->title }}</h2>
+            <!-- <h2>Hình ảnh {{ $event->title }}</h2> -->
             @foreach($event->images as $img)
                 <figure>
                     @if($img->title)<h3>{{ $img->title }}</h3>@endif

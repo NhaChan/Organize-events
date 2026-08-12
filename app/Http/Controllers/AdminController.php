@@ -75,6 +75,8 @@ class AdminController extends Controller
             'after_gallery_content' => ['nullable', 'string'],
             'event_date' => ['nullable', 'date'],
             'location' => ['nullable', 'string', 'max:255'],
+            'original_price' => ['nullable', 'integer', 'min:0'],
+            'sale_price' => ['nullable', 'integer', 'min:0'],
             'status' => ['required', Rule::in(['draft', 'published', 'archived'])],
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:255'],

@@ -37,6 +37,8 @@ class PostContentInternalLinkTest extends TestCase
             ->assertSee('name="after_gallery_title"', false)
             ->assertSee('name="after_gallery_content"', false)
             ->assertSee('id="new-image-descriptions"', false)
+            ->assertSee('name="original_price"', false)
+            ->assertSee('name="sale_price"', false)
             ->assertSee(route('event', $event, false), false);
     }
 

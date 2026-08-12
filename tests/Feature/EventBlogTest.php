@@ -40,6 +40,18 @@ class EventBlogTest extends TestCase
         $this->get('/admin/settings/site')->assertOk()->assertSee('confirm-modal');
     }
 
+    public function test_missing_urls_and_slugs_redirect_to_home_instead_of_showing_404(): void
+    {
+        $this->get('/duong-dan-khong-ton-tai-'.uniqid())
+            ->assertRedirect(route('home'));
+
+        $this->get('/dich-vu/danh-muc-da-bi-xoa-'.uniqid())
+            ->assertRedirect(route('home'));
+
+        $this->get('/bai-viet/bai-viet-da-bi-xoa-'.uniqid())
+            ->assertRedirect(route('home'));
+    }
+
     public function test_admin_can_login_with_seeded_credentials(): void
     {
         $this->post('/admin/login', [

@@ -31,6 +31,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link href="{{ asset('css/party.css') }}" rel="stylesheet"><link href="{{ asset('css/home.css') }}" rel="stylesheet"><link href="{{ asset('css/navigation.css') }}" rel="stylesheet"><link href="{{ asset('css/category-page.css') }}?v={{ filemtime(public_path('css/category-page.css')) }}" rel="stylesheet"><link href="{{ asset('css/typography.css') }}?v={{ filemtime(public_path('css/typography.css')) }}" rel="stylesheet">
     <link href="{{ asset('css/mega-menu.css') }}?v=2" rel="stylesheet">
+    <link href="{{ asset('css/product-price.css') }}?v={{ filemtime(public_path('css/product-price.css')) }}" rel="stylesheet">
     @stack('styles')
 </head>
 <body>
