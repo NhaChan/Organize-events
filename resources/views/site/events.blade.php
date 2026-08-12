@@ -20,11 +20,11 @@
 
 @section('content')
 <x-navigation-trail :page-label="'Bài viết & hình ảnh'" />
-<section class="inner-hero">
+<!-- <section class="inner-hero">
     <span>BÀI VIẾT & HÌNH ẢNH</span>
     <h1>Ý tưởng cho ngày vui</h1>
     <p>Xem các mẫu trang trí, tiết mục và sự kiện chúng tôi đã đăng tải.</p>
-</section>
+</section> -->
 <section class="party-section event-listing">
     <section class="event-filter-card" aria-labelledby="event-filter-title">
         <div class="event-filter-heading">

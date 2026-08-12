@@ -187,7 +187,7 @@ class AdminController extends Controller
             'description' => ['nullable', 'string'],
             'parent_id' => ['nullable', 'exists:categories,id', Rule::notIn([$category->id])],
         ]);
-        $data['slug'] = $data['slug'] ? Str::slug($data['slug']) : Str::slug($data['name']);
+        $data['slug'] = filled($data['slug'] ?? null) ? Str::slug($data['slug']) : Str::slug($data['name']);
         $category->fill($data)->save();
 
         return redirect()->route('admin.categories')->with('success', 'Đã lưu dịch vụ.');

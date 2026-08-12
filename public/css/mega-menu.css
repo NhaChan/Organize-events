@@ -8,3 +8,29 @@
 @media(max-width:720px){.nav-services{width:100%}.nav-service-row{width:100%}.main-nav .nav-service-link{flex:1}.nav-service-toggle{width:44px}.mega-menu{position:static;width:100%;padding:0;display:none;opacity:1;visibility:visible;pointer-events:auto;transform:none;transition:none}.nav-services.open .mega-menu{display:block}.mega-panel{margin:4px 0 8px;border-radius:13px;box-shadow:none;background:#fbfcfe}.mega-heading{padding:14px}.mega-heading strong{font-size:1rem}.main-nav .mega-heading>a{display:none}.mega-grid{display:grid;grid-template-columns:1fr;max-height:52vh}.mega-group,.mega-group:nth-child(4n){padding:14px 16px;border-right:0}.main-nav .mega-group-title{font-size:.95rem}.mega-links{margin-left:19px}.main-nav .mega-links a{padding:8px}.main-nav>a{width:100%}}
 
 @media(prefers-reduced-motion:reduce){.mega-menu,.nav-service-toggle svg{transition:none}}
+
+/* Main service categories displayed directly in the sticky header. */
+.site-header{position:sticky;top:0;z-index:300}
+.site-nav{max-width:1440px}
+.main-nav{min-width:0}
+.nav-category{position:relative}
+.nav-category-row{display:flex;align-items:center}
+.main-nav .nav-category-link{max-width:150px;padding:9px 5px 9px 9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.8rem}
+.nav-category-toggle{display:grid;place-items:center;flex:none;width:24px;height:32px;padding:0;border:0;border-radius:7px;background:transparent;color:#68738a;cursor:pointer}
+.nav-category-toggle svg{width:11px;height:7px;transition:transform .2s}
+.nav-category.open .nav-category-toggle svg{transform:rotate(180deg)}
+.nav-category-dropdown{position:absolute;top:calc(100% + 12px);left:0;display:grid;width:250px;padding:9px;border:1px solid #e8edf4;border-radius:14px;background:#fff;box-shadow:0 18px 45px #18233a26;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(7px);transition:.18s;z-index:320}
+.main-nav .nav-category-dropdown a{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;color:#59657b;font-size:.8rem}
+.main-nav .nav-category-dropdown a:hover{color:var(--pink);background:#fff1f5}
+.main-nav .nav-category-dropdown .nav-category-all{color:#18233a;font-weight:900;border-bottom:1px solid #edf1f6;border-radius:8px 8px 0 0}
+@media(min-width:1101px){.nav-category:hover .nav-category-dropdown,.nav-category:focus-within .nav-category-dropdown,.nav-category.open .nav-category-dropdown{opacity:1;visibility:visible;pointer-events:auto;transform:none}.nav-category:hover .nav-category-toggle svg,.nav-category:focus-within .nav-category-toggle svg{transform:rotate(180deg)}}
+@media(max-width:1240px) and (min-width:1101px){.site-nav{padding:0 14px}.main-nav{gap:1px}.main-nav>a{padding-left:7px;padding-right:7px}.main-nav .nav-category-link{max-width:105px;padding-left:6px;font-size:.74rem}.nav-contact{font-size:0!important}.nav-contact::first-letter{font-size:1rem}}
+@media(max-width:1100px){.menu-button{display:block}.main-nav{display:none;position:absolute;top:76px;left:12px;right:12px;max-height:calc(100vh - 92px);overflow:auto;background:#fff;padding:10px;border-radius:15px;box-shadow:0 15px 40px #26375028;flex-direction:column;align-items:stretch}.main-nav.open{display:flex}.main-nav>a,.nav-category{width:100%}.nav-category-row{width:100%}.main-nav .nav-category-link{flex:1;max-width:none;padding:10px 13px;font-size:.9rem}.nav-category-toggle{width:44px}.nav-category-dropdown{position:static;display:none;width:100%;padding:5px 8px 8px;margin:2px 0 7px;opacity:1;visibility:visible;pointer-events:auto;transform:none;box-shadow:none;background:#f8fafc}.nav-category.open .nav-category-dropdown{display:grid}.main-nav .nav-category-dropdown a{padding:9px 12px}.main-nav>a{padding:10px 13px}.main-nav .nav-contact{text-align:center}.site-header{height:76px}}
+@media(max-width:720px){.main-nav{top:66px;max-height:calc(100vh - 80px)}.site-header{height:66px}}
+
+/* Keep top-level navigation consistent and make the current location visible. */
+.main-nav>a,.main-nav .nav-category-link{font-size:14.4px}
+.main-nav>a.active,.nav-category.active .nav-category-link{color:var(--pink);background:#fff1f5}
+.nav-category.active .nav-category-toggle{color:var(--pink);background:#fff1f5}
+.main-nav .nav-category-dropdown a.active{color:var(--pink);background:#fff1f5}
+@media(max-width:1240px) and (min-width:1101px){.main-nav .nav-category-link{font-size:14.4px}.main-nav .nav-contact{font-size:14.4px!important}}

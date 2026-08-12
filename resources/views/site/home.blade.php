@@ -25,6 +25,38 @@
     }
 @endphp
 
+
+
+<section class="party-section services-section home-services" id="dich-vu-noi-bat">
+    <div class="section-heading">
+        <!-- <span>DỊCH VỤ NỔI BẬT</span> -->
+        <h1>Chọn dịch vụ cho buổi tiệc của bạn</h1>
+        <!-- <p>Khám phá từng dịch vụ, xem hình ảnh thực tế và những mẫu đã thực hiện trước khi liên hệ tư vấn.</p> -->
+    </div>
+    <div class="service-grid home-service-grid">
+        @forelse($categories->take(8) as $i => $cat)
+            @php
+                $serviceImage = null;
+                $serviceAlt = $cat->name;
+                if ($cat->page?->service_image) {
+                    $serviceImage = Str::contains($cat->page->service_image, '/') ? asset('storage/'.$cat->page->service_image) : asset('uploads/services/'.$cat->page->service_image);
+                    $serviceAlt = $cat->page->service_image_alt ?: $cat->name;
+                } elseif ($cat->page?->banner_image) {
+                    $serviceImage = Str::contains($cat->page->banner_image, '/') ? asset('storage/'.$cat->page->banner_image) : asset('uploads/banners/'.$cat->page->banner_image);
+                    $serviceAlt = $cat->page->banner_alt ?: $cat->name;
+                }
+            @endphp
+            <a class="home-service-card tone-{{ ($i % 5) + 1 }}" href="{{ route('category', $cat) }}">
+                <div class="home-service-visual">@if($serviceImage)<img src="{{ $serviceImage }}" alt="{{ $serviceAlt }}" loading="lazy">@else<span>{{ $icons[$i] ?? '🎉' }}</span>@endif<b>{{ $cat->events_count }} bài viết</b></div>
+                <div class="home-service-body"><span class="service-number">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span><div><h3>{{ $cat->name }}</h3><p>{{ Str::limit($cat->description ?: 'Xem hình ảnh, thông tin và các mẫu dịch vụ đã thực hiện.', 105) }}</p><strong>Xem dịch vụ <b>→</b></strong></div></div>
+            </a>
+        @empty
+            <div class="empty-state">Các dịch vụ đang được cập nhật. Vui lòng liên hệ để được tư vấn.</div>
+        @endforelse
+    </div>
+    <div class="center"><a class="party-btn outline" href="{{ route('services') }}">Xem toàn bộ dịch vụ</a></div>
+</section>
+
 <section class="party-hero home-hero">
     <div class="hero-bubbles"><i></i><i></i><i></i></div>
     <!-- <div class="hero-copy">
@@ -49,32 +81,6 @@
     @endforeach
 </nav>
 @endif
-
-<section class="party-section services-section home-services" id="dich-vu-noi-bat">
-    <div class="section-heading"><span>DỊCH VỤ NỔI BẬT</span><h1>Chọn dịch vụ cho buổi tiệc của bạn</h1><p>Khám phá từng dịch vụ, xem hình ảnh thực tế và những mẫu đã thực hiện trước khi liên hệ tư vấn.</p></div>
-    <div class="service-grid home-service-grid">
-        @forelse($categories->take(8) as $i => $cat)
-            @php
-                $serviceImage = null;
-                $serviceAlt = $cat->name;
-                if ($cat->page?->service_image) {
-                    $serviceImage = Str::contains($cat->page->service_image, '/') ? asset('storage/'.$cat->page->service_image) : asset('uploads/services/'.$cat->page->service_image);
-                    $serviceAlt = $cat->page->service_image_alt ?: $cat->name;
-                } elseif ($cat->page?->banner_image) {
-                    $serviceImage = Str::contains($cat->page->banner_image, '/') ? asset('storage/'.$cat->page->banner_image) : asset('uploads/banners/'.$cat->page->banner_image);
-                    $serviceAlt = $cat->page->banner_alt ?: $cat->name;
-                }
-            @endphp
-            <a class="home-service-card tone-{{ ($i % 5) + 1 }}" href="{{ route('category', $cat) }}">
-                <div class="home-service-visual">@if($serviceImage)<img src="{{ $serviceImage }}" alt="{{ $serviceAlt }}" loading="lazy">@else<span>{{ $icons[$i] ?? '🎉' }}</span>@endif<b>{{ $cat->events_count }} bài viết</b></div>
-                <div class="home-service-body"><span class="service-number">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span><div><h3>{{ $cat->name }}</h3><p>{{ Str::limit($cat->description ?: 'Xem hình ảnh, thông tin và các mẫu dịch vụ đã thực hiện.', 105) }}</p><strong>Xem dịch vụ <b>→</b></strong></div></div>
-            </a>
-        @empty
-            <div class="empty-state">Các dịch vụ đang được cập nhật. Vui lòng liên hệ để được tư vấn.</div>
-        @endforelse
-    </div>
-    <div class="center"><a class="party-btn outline" href="{{ route('services') }}">Xem toàn bộ dịch vụ</a></div>
-</section>
 
 <section class="party-section why-section">
     <div class="why-photo"><div class="photo-placeholder">🎊<span>Niềm vui của khách hàng<br>là điều quan trọng nhất</span></div></div>

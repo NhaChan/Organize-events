@@ -8,10 +8,10 @@
 <x-navigation-trail :category="$category" />
 @php($page = $category->page)
 
-<section class="category-hero" aria-label="{{ $category->name }}">
+<!-- <section class="category-hero" aria-label="{{ $category->name }}">
     <span>DỊCH VỤ SỰ KIỆN</span>
     <div class="category-hero-name">{{ $category->name }}</div>
-</section>
+</section> -->
 
 <section class="wrap category-posts">
     <header class="category-page-heading">
