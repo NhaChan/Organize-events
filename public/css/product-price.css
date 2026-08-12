@@ -3,8 +3,6 @@
 .product-price del{color:#94a3b8;font-size:.82rem}
 .price-current,.price-contact{color:#e11d63;font-size:1.05rem;font-weight:900}
 .price-discount{padding:3px 7px;border-radius:20px;background:#e11d63;color:#fff;font-size:.68rem;font-weight:900}
-.product-price-detail{width:fit-content;min-width:230px;margin:18px 0 24px;padding:13px 16px}
-.product-price-detail .price-current,.product-price-detail .price-contact{font-size:1.25rem}
 .post-image-more{position:absolute;right:14px;bottom:14px;z-index:2;padding:7px 11px;border-radius:20px;background:#17223ad9;color:#fff;font-size:.72rem;font-weight:900;line-height:1;box-shadow:0 6px 18px #17223a38;transition:.2s}
 .post-image:hover .post-image-more{background:var(--pink);transform:translateY(-2px)}
-@media(max-width:720px){.product-price-detail{width:100%;min-width:0}}
+.floating-contact .float-zalo{background:#0878f9;font-family:Arial,sans-serif;font-size:.68rem;letter-spacing:-.03em}

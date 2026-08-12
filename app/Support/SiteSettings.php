@@ -14,6 +14,7 @@ class SiteSettings
             'phone' => '0909 000 000',
             'facebook' => 'https://www.facebook.com/minh.trieu.715595',
             'fanpage' => 'https://www.facebook.com/minh.trieu.715595',
+            'zalo' => null,
             'address' => 'TP. Hồ Chí Minh',
             'about' => 'Chuyên trang trí và cung cấp dịch vụ giải trí cho sinh nhật, thôi nôi, khai trương, trường học và sự kiện gia đình.',
             'seo_indexing' => (bool) config('seo.indexing_enabled'),

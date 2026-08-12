@@ -35,11 +35,15 @@ class EventPricingTest extends TestCase
             $this->assertSame(1200000, $pricedEvent->original_price);
             $this->assertSame(900000, $pricedEvent->sale_price);
 
-            $this->get(route('event', $pricedEvent))
+            $this->get(route('events'))
                 ->assertOk()
                 ->assertSee('<del>1.200.000₫</del>', false)
                 ->assertSee('900.000₫')
                 ->assertSee('-25%');
+
+            $this->get(route('event', $pricedEvent))
+                ->assertOk()
+                ->assertDontSee('class="product-price"', false);
 
             $contactEvent = Event::create([
                 'title' => 'Sản phẩm giá liên hệ kiểm tra',
@@ -49,7 +53,7 @@ class EventPricingTest extends TestCase
                 'status' => 'published',
             ]);
 
-            $this->get(route('event', $contactEvent))
+            $this->get(route('events'))
                 ->assertOk()
                 ->assertSee('Giá liên hệ');
 

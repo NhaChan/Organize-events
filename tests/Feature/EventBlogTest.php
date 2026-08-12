@@ -15,6 +15,7 @@ class EventBlogTest extends TestCase
     public function test_public_pages_render_successfully(): void
     {
         $this->get('/')->assertOk()->assertSee('Minh Triều Party');
+        $this->get('/')->assertSee('class="float-zalo"', false)->assertSee('https://zalo.me/', false);
         $this->get('/dich-vu')->assertOk()->assertSee('DỊCH VỤ SỰ KIỆN');
         $this->get('/bai-viet')->assertOk();
         $this->get('/sitemap.xml')->assertOk();
@@ -38,6 +39,7 @@ class EventBlogTest extends TestCase
         $this->get('/admin/categories')->assertOk();
         $this->get(route('admin.categories.page', Category::firstOrFail()))->assertOk();
         $this->get('/admin/settings/site')->assertOk()->assertSee('confirm-modal');
+        $this->get('/admin/settings/site')->assertSee('name="zalo"', false);
     }
 
     public function test_missing_urls_and_slugs_redirect_to_home_instead_of_showing_404(): void

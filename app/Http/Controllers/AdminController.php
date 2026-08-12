@@ -364,6 +364,7 @@ class AdminController extends Controller
             'phone' => ['required', 'string', 'max:30'],
             'facebook' => ['nullable', 'url', 'max:255'],
             'fanpage' => ['nullable', 'url', 'max:255'],
+            'zalo' => ['nullable', 'url', 'max:255'],
             'address' => ['nullable', 'string', 'max:255'],
             'about' => ['nullable', 'string', 'max:2000'],
             'seo_indexing' => ['required', 'boolean'],

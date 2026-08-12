@@ -75,7 +75,6 @@
         <img class="cover" src="{{ $thumbnail }}" alt="{{ $event->title }}">
     @endif
     @if($event->summary)<p class="lead">{{ $event->summary }}</p>@endif
-    <x-event-price :event="$event" class="product-price-detail" />
     @if($event->content)
         <section class="event-content">
             <h2>Thông tin chi tiết về {{ $event->title }}</h2>
