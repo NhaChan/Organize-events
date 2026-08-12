@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Event;
 use App\Models\EventImage;
+use App\Support\PostContent;
 use App\Support\SiteSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class AdminController extends Controller
 {
@@ -47,18 +49,30 @@ class AdminController extends Controller
         return view('admin.event-form', [
             'event' => $event->loadMissing('images'),
             'categories' => Category::with('parent')->orderBy('name')->get(),
+            'linkableEvents' => Event::query()
+                ->where('status', 'published')
+                ->when($event->exists, fn ($query) => $query->where('id', '!=', $event->getKey()))
+                ->orderBy('title')
+                ->get(['title', 'slug']),
         ]);
     }
 
     public function saveEvent(Request $request, ?Event $event = null)
     {
         $event ??= new Event;
+        $request->merge([
+            'content' => PostContent::sanitize($request->input('content')),
+            'image_contents' => $this->sanitizeContentList($request->input('image_contents')),
+            'existing_image_contents' => $this->sanitizeContentList($request->input('existing_image_contents')),
+        ]);
         $data = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', Rule::unique('events', 'slug')->ignore($event)],
             'category_id' => ['nullable', 'exists:categories,id'],
             'summary' => ['required_if:status,published', 'nullable', 'string', 'max:1000'],
             'content' => ['required_if:status,published', 'nullable', 'string'],
+            'after_gallery_title' => ['nullable', 'string', 'max:255'],
+            'after_gallery_content' => ['nullable', 'string'],
             'event_date' => ['nullable', 'date'],
             'location' => ['nullable', 'string', 'max:255'],
             'status' => ['required', Rule::in(['draft', 'published', 'archived'])],
@@ -67,9 +81,21 @@ class AdminController extends Controller
             'thumbnail' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
             'extra_images' => ['nullable', 'array', 'max:12'],
             'extra_images.*' => ['image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
+            'alt_texts' => ['nullable', 'array'],
+            'alt_texts.*' => ['nullable', 'string', 'max:255'],
+            'image_titles' => ['nullable', 'array'],
+            'image_titles.*' => ['nullable', 'string', 'max:255'],
+            'image_contents' => ['nullable', 'array'],
+            'image_contents.*' => ['nullable', 'string'],
+            'existing_alt_texts' => ['nullable', 'array'],
+            'existing_alt_texts.*' => ['nullable', 'string', 'max:255'],
+            'existing_image_titles' => ['nullable', 'array'],
+            'existing_image_titles.*' => ['nullable', 'string', 'max:255'],
+            'existing_image_contents' => ['nullable', 'array'],
+            'existing_image_contents.*' => ['nullable', 'string'],
         ]);
 
-        unset($data['extra_images']);
+        unset($data['extra_images'], $data['alt_texts'], $data['image_titles'], $data['image_contents'], $data['existing_alt_texts'], $data['existing_image_titles'], $data['existing_image_contents']);
         $data['slug'] = $data['slug'] ? Str::slug($data['slug']) : Str::slug($data['title']);
 
         if ($request->hasFile('thumbnail')) {
@@ -78,17 +104,50 @@ class AdminController extends Controller
         }
 
         $event->fill($data)->save();
+
+        $existingImageIds = collect([
+            array_keys($request->input('existing_alt_texts', [])),
+            array_keys($request->input('existing_image_titles', [])),
+            array_keys($request->input('existing_image_contents', [])),
+        ])->flatten()->unique();
+
+        foreach ($existingImageIds as $imageId) {
+            $title = $request->input("existing_image_titles.{$imageId}");
+            $content = $request->input("existing_image_contents.{$imageId}");
+            $alt = $request->input("existing_alt_texts.{$imageId}");
+            $event->images()->whereKey($imageId)->update([
+                'title' => filled($title) ? trim($title) : null,
+                'content' => filled($content) ? $content : null,
+                'alt_text' => filled($alt) ? trim($alt) : null,
+            ]);
+        }
+
         $nextSort = (int) $event->images()->max('sort_order') + 1;
 
         foreach ($request->file('extra_images', []) as $index => $file) {
             $event->images()->create([
                 'image_path' => $file->store('events', 'public'),
-                'alt_text' => $request->input("alt_texts.{$index}"),
+                'title' => filled($request->input("image_titles.{$index}"))
+                    ? trim($request->input("image_titles.{$index}"))
+                    : null,
+                'content' => $request->input("image_contents.{$index}"),
+                'alt_text' => filled($request->input("alt_texts.{$index}"))
+                    ? trim($request->input("alt_texts.{$index}"))
+                    : null,
                 'sort_order' => $nextSort + $index,
             ]);
         }
 
         return redirect()->route('admin.events.edit', $event)->with('success', 'Đã lưu bài viết.');
+    }
+
+    private function sanitizeContentList(mixed $contents): mixed
+    {
+        if (! is_array($contents)) {
+            return $contents;
+        }
+
+        return array_map(fn ($content) => PostContent::sanitize($content), $contents);
     }
 
     public function deleteImage(EventImage $image)
@@ -159,13 +218,26 @@ class AdminController extends Controller
     {
         return view('admin.category-page', [
             'category' => $category,
-            'page' => $category->page ?? $category->page()->make(),
+            'page' => ($category->page ?? $category->page()->make())->loadMissing('contentBlocks'),
         ]);
     }
 
     public function saveCategoryPage(Request $request, Category $category)
     {
         $page = $category->page ?? $category->page()->make();
+        $blocks = $request->input('blocks');
+
+        if (is_array($blocks)) {
+            foreach ($blocks as $key => $block) {
+                if (is_array($block)) {
+                    $blocks[$key]['content'] = PostContent::sanitize($block['content'] ?? null);
+                    $blocks[$key]['after_content'] = PostContent::sanitize($block['after_content'] ?? null);
+                }
+            }
+
+            $request->merge(['blocks' => $blocks]);
+        }
+
         $data = $request->validate([
             'page_title' => ['nullable', 'string', 'max:255'],
             'subtitle' => ['nullable', 'string', 'max:255'],
@@ -185,7 +257,38 @@ class AdminController extends Controller
             'feat3_desc' => ['nullable', 'string', 'max:200'],
             'cta_text' => ['nullable', 'string', 'max:100'],
             'cta_url' => ['nullable', 'url', 'max:255'],
+            'blocks' => ['nullable', 'array', 'max:30'],
+            'blocks.*.id' => ['nullable', 'integer'],
+            'blocks.*.heading' => ['nullable', 'string', 'max:255'],
+            'blocks.*.content' => ['nullable', 'string'],
+            'blocks.*.after_content' => ['nullable', 'string'],
+            'blocks.*.image_alt' => ['nullable', 'string', 'max:255'],
+            'blocks.*.image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:6144'],
+            'blocks.*.remove' => ['nullable', 'boolean'],
         ]);
+
+        $blockInputs = $data['blocks'] ?? [];
+        unset($data['blocks']);
+
+        if ($request->hasFile('banner_image') && blank($data['banner_alt'] ?? null)) {
+            throw ValidationException::withMessages(['banner_alt' => 'Ảnh banner bắt buộc phải có Alt ảnh.']);
+        }
+
+        foreach ($blockInputs as $key => $blockInput) {
+            if ((bool) ($blockInput['remove'] ?? false)) {
+                continue;
+            }
+
+            $existingImage = filled($blockInput['id'] ?? null)
+                ? $page->contentBlocks()->whereKey($blockInput['id'])->value('image')
+                : null;
+
+            if (($request->hasFile("blocks.{$key}.image") || $existingImage) && blank($blockInput['image_alt'] ?? null)) {
+                throw ValidationException::withMessages([
+                    "blocks.{$key}.image_alt" => 'Mỗi ảnh nội dung bắt buộc phải có Alt ảnh.',
+                ]);
+            }
+        }
 
         foreach (['banner_image' => 'category-banners', 'service_image' => 'category-services'] as $field => $directory) {
             if ($request->hasFile($field)) {
@@ -198,6 +301,50 @@ class AdminController extends Controller
 
         $page->fill($data);
         $category->page()->save($page);
+
+        foreach ($blockInputs as $key => $blockInput) {
+            $block = filled($blockInput['id'] ?? null)
+                ? $page->contentBlocks()->findOrFail($blockInput['id'])
+                : $page->contentBlocks()->make();
+
+            if ((bool) ($blockInput['remove'] ?? false)) {
+                $this->removeFile($block->image);
+                $block->delete();
+
+                continue;
+            }
+
+            $imageFile = $request->file("blocks.{$key}.image");
+            $hasContent = filled($blockInput['heading'] ?? null)
+                || filled($blockInput['content'] ?? null)
+                || filled($blockInput['after_content'] ?? null)
+                || $imageFile
+                || $block->image;
+
+            if (! $hasContent) {
+                if ($block->exists) {
+                    $block->delete();
+                }
+
+                continue;
+            }
+
+            if ($imageFile) {
+                $this->removeFile($block->image);
+                $blockInput['image'] = $imageFile->store('category-content', 'public');
+            } else {
+                unset($blockInput['image']);
+            }
+
+            unset($blockInput['id'], $blockInput['remove']);
+            $blockInput['heading'] = filled($blockInput['heading'] ?? null) ? trim($blockInput['heading']) : null;
+            $blockInput['content'] = filled($blockInput['content'] ?? null) ? trim($blockInput['content']) : null;
+            $blockInput['after_content'] = filled($blockInput['after_content'] ?? null) ? trim($blockInput['after_content']) : null;
+            $blockInput['image_alt'] = filled($blockInput['image_alt'] ?? null) ? trim($blockInput['image_alt']) : null;
+            $blockInput['sort_order'] = array_search($key, array_keys($blockInputs), true);
+            $block->fill($blockInput);
+            $page->contentBlocks()->save($block);
+        }
 
         return back()->with('success', 'Đã cập nhật nội dung trang dịch vụ.');
     }

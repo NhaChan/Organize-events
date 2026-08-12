@@ -51,7 +51,7 @@
 @endif
 
 <section class="party-section services-section home-services" id="dich-vu-noi-bat">
-    <div class="section-heading"><span>DỊCH VỤ NỔI BẬT</span><h2>Chọn dịch vụ cho buổi tiệc của bạn</h2><p>Khám phá từng dịch vụ, xem hình ảnh thực tế và những mẫu đã thực hiện trước khi liên hệ tư vấn.</p></div>
+    <div class="section-heading"><span>DỊCH VỤ NỔI BẬT</span><h1>Chọn dịch vụ cho buổi tiệc của bạn</h1><p>Khám phá từng dịch vụ, xem hình ảnh thực tế và những mẫu đã thực hiện trước khi liên hệ tư vấn.</p></div>
     <div class="service-grid home-service-grid">
         @forelse($categories->take(8) as $i => $cat)
             @php

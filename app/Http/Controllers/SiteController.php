@@ -82,7 +82,7 @@ class SiteController extends Controller
 
     public function category(Category $category)
     {
-        $category->load('page', 'parent', 'children');
+        $category->load('page.contentBlocks', 'parent', 'children');
         $categoryIds = $this->descendantIds($category);
 
         return view('site.category', $this->base([

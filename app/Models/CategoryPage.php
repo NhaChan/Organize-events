@@ -12,4 +12,9 @@ class CategoryPage extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function contentBlocks()
+    {
+        return $this->hasMany(CategoryContentBlock::class)->orderBy('sort_order')->orderBy('id');
+    }
 }
