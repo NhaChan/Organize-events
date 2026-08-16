@@ -60,7 +60,7 @@ class SiteController extends Controller
                 }
             })
             ->latest()
-            ->paginate(12)
+            ->paginate(6)
             ->withQueryString();
 
         return view('site.events', $this->base([
@@ -76,7 +76,7 @@ class SiteController extends Controller
                 ->with('page', 'children')
                 ->withCount(['events' => fn ($query) => $query->where('status', 'published')])
                 ->orderBy('name')
-                ->get(),
+                ->paginate(6),
         ]));
     }
 

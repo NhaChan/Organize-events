@@ -1,10 +1,28 @@
 :root {
-    --type-h1: clamp(2rem, 3.5vw, 2.65rem);
+    --type-h1: clamp(1.75rem, 3vw, 2.25rem);
     --type-h2: clamp(1.4rem, 2.4vw, 1.8rem);
     --type-h3: clamp(1.15rem, 1.8vw, 1.35rem);
     --type-p: 1rem;
     --type-heading-line: 1.25;
     --type-copy-line: 1.8;
+}
+
+main h1 {
+    font-family: 'Nunito', sans-serif;
+    font-size: var(--type-h1) !important;
+    font-weight: 400;
+}
+
+main h2 {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 400;
+}
+
+.service-card h3,
+.home-service-card h3,
+.post-card h3 {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 400;
 }
 
 .category-page-heading h1 {
@@ -32,7 +50,7 @@
 
 @media (max-width: 760px) {
     :root {
-        --type-h1: 1.85rem;
+        --type-h1: 1.7rem;
         --type-h2: 1.35rem;
         --type-h3: 1.15rem;
         --type-p: .96rem;

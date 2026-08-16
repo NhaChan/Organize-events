@@ -2,7 +2,8 @@
 
 @section('title', 'Dịch vụ - '.$settings['brand_name'])
 @section("description", "Dịch vụ trang trí, biểu diễn và giải trí sự kiện của ".$settings["brand_name"].". Xem hình ảnh thực tế và liên hệ tư vấn.")
-@section("canonical", \App\Support\SeoUrl::route("services"))
+@php($pageNumber = max(1, request()->integer('page', 1)))
+@section("canonical", \App\Support\SeoUrl::route("services", [], $pageNumber > 1 ? ['page' => $pageNumber] : []))
 
 @section('content')
 <x-navigation-trail page-label="Dịch vụ" />
@@ -25,6 +26,21 @@
             <div class="empty-state">Admin chưa tạo dịch vụ nào.</div>
         @endforelse
     </div>
+    @if($categories->hasPages())
+        <nav class="category-pagination" aria-label="Phân trang dịch vụ">
+            @if($categories->onFirstPage())
+                <span class="disabled" aria-disabled="true">← Trang trước</span>
+            @else
+                <a href="{{ $categories->previousPageUrl() }}" rel="prev">← Trang trước</a>
+            @endif
+            <span class="page-status">Trang {{ $categories->currentPage() }} / {{ $categories->lastPage() }}</span>
+            @if($categories->hasMorePages())
+                <a href="{{ $categories->nextPageUrl() }}" rel="next">Trang sau →</a>
+            @else
+                <span class="disabled" aria-disabled="true">Trang sau →</span>
+            @endif
+        </nav>
+    @endif
 </section>
 <section class="contact-banner compact"><div><h2>Chưa biết chọn dịch vụ nào?</h2><p>Gọi trực tiếp để được tư vấn theo loại tiệc, địa điểm và ngân sách.</p></div><div class="contact-actions"><a href="tel:{{ preg_replace('/\s+/', '', $settings['phone']) }}">☎ {{ $settings['phone'] }}</a>@if($settings['facebook'])<a href="{{ $settings['facebook'] }}" target="_blank" rel="noopener">Nhắn Facebook</a>@endif</div></section>
 @endsection

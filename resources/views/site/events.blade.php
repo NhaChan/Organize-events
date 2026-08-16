@@ -87,6 +87,20 @@
             </div>
         @endforelse
     </div>
-    {{ $events->links() }}
+    @if($events->hasPages())
+        <nav class="category-pagination" aria-label="Phân trang bài viết và hình ảnh">
+            @if($events->onFirstPage())
+                <span class="disabled" aria-disabled="true">← Trang trước</span>
+            @else
+                <a href="{{ $events->previousPageUrl() }}" rel="prev">← Trang trước</a>
+            @endif
+            <span class="page-status">Trang {{ $events->currentPage() }} / {{ $events->lastPage() }}</span>
+            @if($events->hasMorePages())
+                <a href="{{ $events->nextPageUrl() }}" rel="next">Trang sau →</a>
+            @else
+                <span class="disabled" aria-disabled="true">Trang sau →</span>
+            @endif
+        </nav>
+    @endif
 </section>
 @endsection
