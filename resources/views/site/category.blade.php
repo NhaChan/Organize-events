@@ -6,7 +6,14 @@
 
 @section('content')
 <x-navigation-trail :category="$category" />
-@php($page = $category->page)
+@php
+    $page = $category->page;
+    $pageImage = $page?->banner_image ?: $page?->service_image;
+    $pageImageDirectory = $page?->banner_image ? 'banners' : 'services';
+    $pageImageAlt = $page?->banner_image
+        ? ($page->banner_alt ?: $category->name)
+        : ($page?->service_image_alt ?: $category->name);
+@endphp
 
 <!-- <section class="category-hero" aria-label="{{ $category->name }}">
     <span>DỊCH VỤ SỰ KIỆN</span>
@@ -20,6 +27,12 @@
             <p>{{ $page?->subtitle ?: $category->description }}</p>
         @endif
     </header>
+
+    @if($pageImage)
+        <figure class="category-page-banner">
+            <img src="{{ Str::contains($pageImage, '/') ? asset('storage/'.$pageImage) : asset('uploads/'.$pageImageDirectory.'/'.$pageImage) }}" alt="{{ $pageImageAlt }}">
+        </figure>
+    @endif
 
     @if($category->children->count())
         <h2>Dịch vụ liên quan</h2>

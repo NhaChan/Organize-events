@@ -2,9 +2,8 @@
 
 <header class="site-header">
     <div class="site-nav">
-        <a class="brand" href="{{ route('home') }}">
-            <span class="brand-mark">🎈</span>
-            <span>{{ $settings['brand_name'] }}<small>Party & Entertainment</small></span>
+        <a class="brand header-brand" href="{{ route('home') }}" aria-label="{{ $settings['brand_name'] }}">
+            <img class="header-logo" src="{{ asset('images/minh-trieu-party-header-logo.png') }}?v={{ filemtime(public_path('images/minh-trieu-party-header-logo.png')) }}" alt="Minh Triều Party - Party & Entertainment" width="900" height="207" decoding="async" fetchpriority="high">
         </a>
 
         <button class="menu-button" type="button" aria-label="Mở menu" aria-expanded="false" aria-controls="main-navigation" data-menu-toggle>☰</button>

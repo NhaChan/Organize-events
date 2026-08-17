@@ -98,13 +98,16 @@ class PostContentInternalLinkTest extends TestCase
             $this->get(route('event', $event))
                 ->assertOk()
                 ->assertSee('<a href="/dich-vu">các dịch vụ sự kiện</a>', false)
-                ->assertSee('color:#2563eb!important', false)
                 ->assertSee('class="event-followup"', false)
                 ->assertSee('Nội dung do admin quản lý')
                 ->assertSee('Đoạn nội dung sau hình ảnh.')
                 ->assertSee('<h3>Tiêu đề riêng của ảnh phụ</h3>', false)
                 ->assertSee('<a href="/dich-vu">dịch vụ liên quan</a>', false)
                 ->assertSee('alt="Alt SEO của ảnh phụ"', false);
+            $this->assertStringContainsString(
+                'color:#2563eb!important',
+                file_get_contents(public_path('css/tailwind-site.css'))
+            );
         } finally {
             $event?->delete();
         }

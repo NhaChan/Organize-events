@@ -17,7 +17,8 @@ class SiteController extends Controller
                 'parent:id,name,slug',
                 'events' => fn ($query) => $query
                     ->where('status', 'published')
-                    ->latest(),
+                    ->latest()
+                    ->limit(5),
             ])
             ->get()
             ->sortByDesc(fn (Category $category) => $category->events->max('created_at'))

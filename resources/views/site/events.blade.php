@@ -14,9 +14,6 @@
     @section('robots', 'noindex,follow,max-image-preview:large')
 @endif
 
-@push('styles')
-    <link href="{{ asset('css/events-filter.css') }}" rel="stylesheet">
-@endpush
 
 @section('content')
 <x-navigation-trail :page-label="'Bài viết & hình ảnh'" />

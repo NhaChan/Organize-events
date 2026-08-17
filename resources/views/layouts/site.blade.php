@@ -24,24 +24,17 @@
     <meta property="og:locale" content="vi_VN"><meta property="og:type" content="@yield("og_type", "website")"><meta property="og:site_name" content="{{ $settings["brand_name"] }}"><meta property="og:title" content="@yield("title", $settings["brand_name"])"><meta property="og:description" content="@yield("description", $settings["about"])"><meta property="og:url" content="{{ $canonicalUrl }}">
     @hasSection("og_image")<meta property="og:image" content="@yield("og_image")">@endif
     <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="@yield("title", $settings["brand_name"])"><meta name="twitter:description" content="@yield("description", $settings["about"])">
-    <link rel="icon" type="image/svg+xml" href="{{ \App\Support\SeoUrl::asset("favicon.svg") }}?v=4">
-    <link rel="alternate icon" type="image/png" sizes="256x256" href="{{ \App\Support\SeoUrl::asset("favicon-balloon.png") }}?v=4">
-    <link rel="apple-touch-icon" href="{{ \App\Support\SeoUrl::asset("favicon-balloon.png") }}?v=4">
     <script type="application/ld+json">{!! json_encode(["@context"=>"https://schema.org","@type"=>"LocalBusiness","@id"=>\App\Support\SeoUrl::route("home")."#business","name"=>$settings["brand_name"],"description"=>$settings["about"],"telephone"=>$settings["phone"],"address"=>["@type"=>"PostalAddress","streetAddress"=>$settings["address"],"addressCountry"=>"VN"],"url"=>\App\Support\SeoUrl::route("home"),"logo"=>\App\Support\SeoUrl::asset("images/nina-nina-icon.png"),"sameAs"=>array_values(array_filter([$settings["facebook"],$settings["fanpage"]]))], JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!}</script>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link href="{{ asset('css/party.css') }}?v={{ filemtime(public_path('css/party.css')) }}" rel="stylesheet"><link href="{{ asset('css/home.css') }}" rel="stylesheet"><link href="{{ asset('css/navigation.css') }}" rel="stylesheet"><link href="{{ asset('css/category-page.css') }}?v={{ filemtime(public_path('css/category-page.css')) }}" rel="stylesheet"><link href="{{ asset('css/typography.css') }}?v={{ filemtime(public_path('css/typography.css')) }}" rel="stylesheet">
-    <link href="{{ asset('css/mega-menu.css') }}?v={{ filemtime(public_path('css/mega-menu.css')) }}" rel="stylesheet">
-    <link href="{{ asset('css/product-price.css') }}?v={{ filemtime(public_path('css/product-price.css')) }}" rel="stylesheet">
-    <link href="{{ asset('css/site-shell.css') }}?v={{ filemtime(public_path('css/site-shell.css')) }}" rel="stylesheet">
+    <x-tailwind-head css="tailwind-site.css" />
     @stack('styles')
 </head>
-<body>
+<body class="font-sans antialiased">
 <x-site-header :settings="$settings" :categories="$navigationCategories" />
 @if(request()->routeIs('home'))
     <main>@yield('content')</main>
 @else
     <div class="site-page-shell">
-        <x-service-sidebar :categories="$navigationCategories" />
+        <x-service-sidebar :categories="$sidebarCategories" />
         <main class="site-page-content">@yield('content')</main>
     </div>
 @endif

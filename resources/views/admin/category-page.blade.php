@@ -32,14 +32,10 @@
         ]);
 @endphp
 
-<style>
-    .category-editor{max-width:980px;margin:0 auto}.editor-actions{display:flex;gap:10px;justify-content:flex-end;margin-bottom:16px;flex-wrap:wrap}.image-preview{width:100%;aspect-ratio:16/9;border:2px dashed var(--border);border-radius:12px;overflow:hidden;display:grid;place-items:center;background:#f8fafc;color:var(--muted)}.image-preview img{width:100%;height:100%;object-fit:cover}.content-blocks{display:grid;gap:16px;margin-top:16px}.content-block{padding:18px;border:1px solid var(--border);border-radius:14px;background:#fff}.content-block.removed{display:none}.block-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.block-head strong{font-size:.9rem}.block-actions{display:flex;gap:6px}.block-action{border:1px solid var(--border);border-radius:7px;background:#f8fafc;padding:6px 9px;cursor:pointer;color:#475569}.block-action.remove{color:#be123c;background:#fff1f2}.block-grid{display:flex;flex-direction:column;gap:18px}.block-fields{display:contents}.block-fields>.form-group:nth-child(1){order:1}.block-fields>.form-group:nth-child(2){order:2}.block-image-fields{order:3}.block-fields>.form-group:nth-child(3){order:4;margin-bottom:0}.block-image-preview{width:100%;aspect-ratio:16/9;border:1px dashed var(--border);border-radius:10px;display:grid;place-items:center;overflow:hidden;background:#f8fafc;color:var(--muted);font-size:.78rem}.block-image-preview img{width:100%;height:100%;object-fit:cover}.title-counter{display:block;margin-top:6px;color:#64748b;font-size:.75rem}.title-counter.over-limit{color:#dc2626;font-weight:800}.block-rich-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}.block-rich-toolbar button{border:1px solid var(--border);border-radius:8px;background:#f8fafc;padding:7px 10px;color:#334155;font:inherit;font-size:.78rem;font-weight:700;cursor:pointer}.block-rich-editor{min-height:170px;padding:12px 14px;border:1px solid var(--border);border-radius:9px;background:#fff;line-height:1.7;outline:none}.block-rich-editor:focus{border-color:#fb7185;box-shadow:0 0 0 3px #fb71851f}.block-rich-editor:empty:before{content:attr(data-placeholder);color:#94a3b8}.block-rich-editor a{color:#1677c8;text-decoration:none}.add-block{width:100%;margin-top:14px;padding:13px;border:2px dashed #fda4af;border-radius:12px;background:#fff8fa;color:var(--accent);font:inherit;font-weight:800;cursor:pointer}.section-help{color:var(--muted);font-size:.8rem;line-height:1.6;margin:7px 0 0}@media(max-width:720px){.editor-actions>*{flex:1;justify-content:center}}
-</style>
-
 <div class="category-editor">
     <div class="editor-actions">
-        <a class="btn-primary-custom" style="background:#64748b" href="{{ route('admin.categories') }}">← Danh mục</a>
-        <a class="btn-primary-custom" style="background:#fb7185" href="{{ route('category', $category) }}" target="_blank" rel="noopener">↗ Xem trang</a>
+        <a class="btn-primary-custom [background:#64748b]" href="{{ route('admin.categories') }}">← Danh mục</a>
+        <a class="btn-primary-custom [background:#fb7185]" href="{{ route('category', $category) }}" target="_blank" rel="noopener">↗ Xem trang</a>
         <button class="btn-primary-custom" form="category-page-form">💾 Lưu nội dung</button>
     </div>
 
@@ -54,6 +50,35 @@
                 <small class="title-counter" id="page-title-counter" aria-live="polite">0 / 60 ký tự</small>
             </div>
             <div class="form-group"><label class="form-label">Dòng giới thiệu ngắn dưới H1</label><input class="form-control-custom" name="subtitle" value="{{ old('subtitle', $page->subtitle) }}" maxlength="255"></div>
+        </section>
+
+        <section class="section-card">
+            <h2 class="section-title">Hình ảnh trang dịch vụ</h2>
+            <p class="section-help">Ảnh thẻ dùng ở danh sách dịch vụ; ảnh banner dùng ở trang chi tiết. Nếu thiếu một ảnh, giao diện sẽ tự dùng ảnh còn lại làm dự phòng.</p>
+            <div class="page-image-grid">
+                <div class="page-image-field">
+                    <div class="page-image-preview">
+                        @if($page->service_image)
+                            <img src="{{ Str::contains($page->service_image, '/') ? asset('storage/'.$page->service_image) : asset('uploads/services/'.$page->service_image) }}" alt="{{ $page->service_image_alt ?: $category->name }}">
+                        @else
+                            <span>Chưa có ảnh thẻ dịch vụ</span>
+                        @endif
+                    </div>
+                    <div class="form-group"><label class="form-label">Ảnh thẻ dịch vụ (khuyên dùng 4:3)</label><input class="form-control-custom page-image-input" type="file" name="service_image" accept="image/*"></div>
+                    <div class="form-group"><label class="form-label">Alt ảnh thẻ</label><input class="form-control-custom" name="service_image_alt" value="{{ old('service_image_alt', $page->service_image_alt) }}" maxlength="255" placeholder="Mô tả ngắn nội dung ảnh"></div>
+                </div>
+                <div class="page-image-field">
+                    <div class="page-image-preview wide">
+                        @if($page->banner_image)
+                            <img src="{{ Str::contains($page->banner_image, '/') ? asset('storage/'.$page->banner_image) : asset('uploads/banners/'.$page->banner_image) }}" alt="{{ $page->banner_alt ?: $category->name }}">
+                        @else
+                            <span>Chưa có ảnh banner</span>
+                        @endif
+                    </div>
+                    <div class="form-group"><label class="form-label">Ảnh banner (khuyên dùng 16:7)</label><input class="form-control-custom page-image-input" type="file" name="banner_image" accept="image/*"></div>
+                    <div class="form-group"><label class="form-label">Alt ảnh banner</label><input class="form-control-custom" name="banner_alt" value="{{ old('banner_alt', $page->banner_alt) }}" maxlength="255" placeholder="Mô tả ngắn nội dung ảnh"></div>
+                </div>
+            </div>
         </section>
 
         <section class="section-card">

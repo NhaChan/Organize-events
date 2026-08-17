@@ -5,16 +5,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
     <title>@yield('title') · Quản trị SEO</title>
-    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}?v=4">
-    <link rel="alternate icon" type="image/png" sizes="256x256" href="{{ asset('favicon-balloon.png') }}?v=4">
-    <link rel="apple-touch-icon" href="{{ asset('favicon-balloon.png') }}?v=4">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
-    @include('admin.legacy-style')
-    <link href="{{ asset('css/admin-extra.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/admin-v2.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/admin-security.css') }}" rel="stylesheet">
+    <x-tailwind-head css="tailwind-admin.css" />
 </head>
-<body>
+<body class="font-sans antialiased">
 <div class="sidebar-overlay" id="sidebar-overlay"></div>
 <aside class="sidebar" id="admin-sidebar">
     <a class="sidebar-brand" href="{{ route('admin.dashboard') }}">

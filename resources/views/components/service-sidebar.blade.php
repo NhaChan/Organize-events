@@ -6,30 +6,36 @@
     $activeCategory = $routeCategory instanceof \App\Models\Category
         ? $routeCategory
         : ($routeEvent instanceof \App\Models\Event ? $routeEvent->category : null);
-    $activeIds = collect([$activeCategory?->id, $activeCategory?->parent_id])->filter()->all();
 @endphp
 
-<aside class="service-sidebar" aria-label="Danh mục dịch vụ">
+<aside class="service-sidebar" aria-label="Bài viết theo danh mục">
     <div class="service-sidebar-inner">
         <div class="service-sidebar-heading">
-            <span>KHÁM PHÁ</span>
-            <strong>Danh mục dịch vụ</strong>
+            <span>BÀI VIẾT</span>
+            <strong>Mới nhất theo danh mục</strong>
         </div>
         <nav class="service-sidebar-nav">
-            @foreach($categories as $category)
-                <section class="service-sidebar-group {{ in_array($category->id, $activeIds, true) ? 'active' : '' }}">
+            @forelse($categories as $category)
+                <section class="service-sidebar-group {{ $activeCategory?->id === $category->id ? 'active' : '' }}">
                     <a class="service-sidebar-parent" href="{{ route('category', $category) }}">
-                        <span>{{ $category->name }}</span><b>›</b>
+                        <span>
+                            @if($category->parent)<small>{{ $category->parent->name }}</small>@endif
+                            {{ $category->name }}
+                        </span>
+                        <b>›</b>
                     </a>
-                    @if($category->children->isNotEmpty())
-                        <div class="service-sidebar-children">
-                            @foreach($category->children as $child)
-                                <a class="{{ $activeCategory?->id === $child->id ? 'active' : '' }}" href="{{ route('category', $child) }}">{{ $child->name }}</a>
-                            @endforeach
-                        </div>
-                    @endif
+                    <div class="service-sidebar-children">
+                        @foreach($category->events as $sidebarEvent)
+                            <a class="{{ $routeEvent instanceof \App\Models\Event && $routeEvent->is($sidebarEvent) ? 'active' : '' }}" href="{{ route('event', $sidebarEvent) }}">
+                                <span>{{ $sidebarEvent->title }}</span>
+                                <time datetime="{{ $sidebarEvent->created_at->toDateString() }}">{{ $sidebarEvent->created_at->format('d/m/Y') }}</time>
+                            </a>
+                        @endforeach
+                    </div>
                 </section>
-            @endforeach
+            @empty
+                <p class="service-sidebar-empty">Chưa có bài viết.</p>
+            @endforelse
         </nav>
     </div>
 </aside>

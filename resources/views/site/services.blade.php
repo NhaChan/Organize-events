@@ -2,7 +2,9 @@
 
 @section('title', 'Dịch vụ - '.$settings['brand_name'])
 @section("description", "Dịch vụ trang trí, biểu diễn và giải trí sự kiện của ".$settings["brand_name"].". Xem hình ảnh thực tế và liên hệ tư vấn.")
-@php($pageNumber = max(1, request()->integer('page', 1)))
+@php
+    $pageNumber = max(1, request()->integer('page', 1));
+@endphp
 @section("canonical", \App\Support\SeoUrl::route("services", [], $pageNumber > 1 ? ['page' => $pageNumber] : []))
 
 @section('content')
@@ -11,11 +13,20 @@
 <section class="party-section">
     <div class="section-heading left"><span>DANH MỤC DỊCH VỤ</span><h2>Khám phá dịch vụ phù hợp</h2><p>Chọn nhóm dịch vụ để xem thông tin, hình ảnh thực tế và các bài viết liên quan.</p></div>
     <div class="service-grid service-page-grid">
-        @php($icons = ['🎈', '🎩', '🤡', '🍭', '🍿', '🌳', '🦫', '🫧', '🎵', '🎤'])
+        @php
+            $icons = ['🎈', '🎩', '🤡', '🍭', '🍿', '🌳', '🦫', '🫧', '🎵', '🎤'];
+        @endphp
         @forelse($categories as $i => $cat)
+            @php
+                $cardImage = $cat->page?->service_image ?: $cat->page?->banner_image;
+                $legacyDirectory = $cat->page?->service_image ? 'services' : 'banners';
+                $cardImageAlt = $cat->page?->service_image
+                    ? ($cat->page->service_image_alt ?: $cat->name)
+                    : ($cat->page?->banner_alt ?: $cat->name);
+            @endphp
             <a class="service-card tone-{{ ($i % 5) + 1 }}" href="{{ route('category', $cat) }}">
-                @if(optional($cat->page)->banner_image)
-                    <img class="service-image" src="{{ Str::contains($cat->page->banner_image, '/') ? asset('storage/'.$cat->page->banner_image) : asset('uploads/banners/'.$cat->page->banner_image) }}" alt="{{ $cat->page->banner_alt ?: $cat->name }}">
+                @if($cardImage)
+                    <img class="service-image" src="{{ Str::contains($cardImage, '/') ? asset('storage/'.$cardImage) : asset('uploads/'.$legacyDirectory.'/'.$cardImage) }}" alt="{{ $cardImageAlt }}" loading="lazy">
                 @else
                     <span class="service-icon">{{ $icons[$i] ?? '🎉' }}</span>
                 @endif

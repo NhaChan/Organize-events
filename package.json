@@ -1,0 +1,13 @@
+{
+    "private": true,
+    "scripts": {
+        "build:css": "tailwindcss -i resources/css/tailwind-site.css -o public/css/tailwind-site.css --minify && tailwindcss -i resources/css/tailwind-admin.css -o public/css/tailwind-admin.css --minify && tailwindcss -i resources/css/tailwind-auth.css -o public/css/tailwind-auth.css --minify",
+        "dev:site": "tailwindcss -i resources/css/tailwind-site.css -o public/css/tailwind-site.css --watch",
+        "dev:admin": "tailwindcss -i resources/css/tailwind-admin.css -o public/css/tailwind-admin.css --watch",
+        "dev:auth": "tailwindcss -i resources/css/tailwind-auth.css -o public/css/tailwind-auth.css --watch"
+    },
+    "devDependencies": {
+        "@tailwindcss/cli": "4.3.3",
+        "tailwindcss": "4.3.3"
+    }
+}
