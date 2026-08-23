@@ -458,10 +458,27 @@ body{@apply [padding-top:68px] [background:radial-gradient(circle_at_8%_12%,#ffd
 .service-sidebar-parent:hover,.service-sidebar-group.active>.service-sidebar-parent{@apply [color:var(--pink)] [background:#fff1f5];}
 .service-sidebar-children{@apply [display:grid] [margin:2px_0_8px_13px] [padding-left:11px] [border-left:2px_solid_#f1f5f9];}
 .service-sidebar-children a{@apply [display:grid] [gap:2px] [padding:8px_9px] [border-radius:8px] [color:#68738a] [font-size:.82rem] [font-weight:700] [line-height:1.4];}
-.service-sidebar-children a span{@apply [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [line-clamp:2] [overflow:hidden];}
+.service-sidebar-copy>span{@apply [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2] [line-clamp:2] [overflow:hidden];}
 .service-sidebar-children time{@apply [color:#a1aabd] [font-size:.68rem] [font-weight:500];}
 .service-sidebar-children a:hover,.service-sidebar-children a.active{@apply [color:var(--pink)] [background:#fff7fa];}
 .service-sidebar-empty{@apply [margin:8px] [padding:12px] [color:#64748b] [font-size:.82rem] [text-align:center];}
+.service-sidebar-inner{@apply [scrollbar-gutter:stable] [overflow-x:hidden];}
+.service-sidebar-heading{@apply [position:relative] [overflow:hidden] [padding:19px_18px];}
+.service-sidebar-heading:after{@apply [content:''] [position:absolute] [right:-18px] [bottom:-28px] [width:82px] [height:82px] [border:16px_solid_rgba(255,93,143,.08)] [border-radius:999px];}
+.service-sidebar-heading p{@apply [position:relative] [z-index:1] [margin:5px_0_0] [color:#7b8496] [font-size:.72rem] [line-height:1.4];}
+.service-sidebar-nav{@apply [gap:5px] [padding:10px];}
+.service-sidebar-group{@apply [padding-bottom:5px] [border-bottom:1px_solid_#f1f5f9];}
+.service-sidebar-group:last-child{@apply [border-bottom:0];}
+.service-sidebar-group.active{@apply [border-radius:12px] [background:linear-gradient(135deg,#fff8fa,#fff)];}
+.service-sidebar-parent b{@apply [display:flex] [align-items:center] [gap:6px] [color:#cbd5e1] [font-style:normal];}
+.service-sidebar-parent b em{@apply [min-width:22px] [padding:2px_6px] [border-radius:999px] [background:#fff1f5] [color:var(--pink)] [font-size:.65rem] [font-style:normal] [text-align:center];}
+.service-sidebar-children{@apply [gap:3px] [margin-left:10px] [padding-left:9px];}
+.service-sidebar-children a{@apply [grid-template-columns:52px_minmax(0,1fr)] [align-items:center] [gap:9px] [padding:7px] [transition:background-color_.2s,transform_.2s,box-shadow_.2s];}
+.service-sidebar-children a:hover{@apply [transform:translateX(2px)];}
+.service-sidebar-children a.active{@apply [box-shadow:inset_3px_0_0_var(--pink)];}
+.service-sidebar-thumb{@apply [display:flex] [align-items:center] [justify-content:center] [width:52px] [height:44px] [overflow:hidden] [border-radius:9px] [background:linear-gradient(135deg,#ffe4ed,#fff0cf)] [box-shadow:0_3px_10px_#17223a12];}
+.service-sidebar-thumb img{@apply [width:100%] [height:100%] [object-fit:cover];}
+.service-sidebar-thumb i{@apply [font-size:1.15rem] [font-style:normal];}
 .site-page-content .contact-banner{@apply [margin-left:0] [margin-right:0];}
 @media(max-width:1200px) and (min-width:901px){
 .site-page-shell{@apply [grid-template-columns:245px_minmax(0,1fr)] [gap:20px];}
@@ -476,8 +493,8 @@ body{@apply [padding-top:68px] [background:radial-gradient(circle_at_8%_12%,#ffd
 .service-sidebar-heading{@apply [padding:11px_13px];}
 .service-sidebar-nav{@apply [display:flex] [gap:7px] [overflow-x:auto] [padding:7px];}
 .service-sidebar-parent{@apply [white-space:nowrap] [margin:0];}
-.service-sidebar-group{@apply [flex:none];}
-.service-sidebar-children{@apply [display:none];}
+.service-sidebar-group{@apply [flex:none] [width:260px] [border:1px_solid_#f1f5f9] [border-radius:11px];}
+.service-sidebar-children{@apply [margin-right:7px];}
 .site-page-content{@apply [margin-top:12px] [padding:0_16px_24px] [border-radius:14px];}
 .site-page-content .navigation-wrap{@apply [margin:0] [padding:12px_0];}
 .site-page-content .contact-banner{@apply [margin-left:0] [margin-right:0];}
