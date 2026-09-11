@@ -52,6 +52,8 @@ class CategoryContentBlocksTest extends TestCase
             $adminPage->assertOk()
                 ->assertSee('id="add-content-block"', false)
                 ->assertSee('id="page-title-counter"', false)
+                ->assertSee('id="category-word-count"', false)
+                ->assertSee('data-word-counter', false)
                 ->assertSee('/ 60 ký tự')
                 ->assertSee('H2 (tùy chọn)')
                 ->assertSee('Alt ảnh *')
@@ -75,6 +77,31 @@ class CategoryContentBlocksTest extends TestCase
             $this->assertLessThan(strpos($html, 'alt="Alt bắt buộc của ảnh nội dung"'), strpos($html, '<a href="/bai-viet/noi-bo">'));
             $this->assertLessThan(strpos($html, '<a href="/dich-vu">'), strpos($html, 'alt="Alt bắt buộc của ảnh nội dung"'));
             $this->assertSame(1, substr_count($html, '<h1'));
+        } finally {
+            $category->delete();
+        }
+    }
+
+    public function test_category_subtitle_accepts_long_text(): void
+    {
+        $category = Category::create([
+            'name' => 'Kiểm tra giới thiệu dài',
+            'slug' => 'kiem-tra-gioi-thieu-dai-'.uniqid(),
+        ]);
+        $subtitle = str_repeat('Nội dung giới thiệu giúp người đọc hiểu rõ hơn về dịch vụ. ', 12);
+
+        try {
+            $this->actingAs(Admin::firstOrFail(), 'admin')
+                ->post(route('admin.categories.page.save', $category), [
+                    'subtitle' => $subtitle,
+                ])
+                ->assertSessionHasNoErrors();
+
+            $this->assertSame(trim($subtitle), $category->page()->value('subtitle'));
+            $this->get(route('admin.categories.page', $category))
+                ->assertOk()
+                ->assertSee('name="subtitle"', false)
+                ->assertDontSee('name="subtitle" maxlength=', false);
         } finally {
             $category->delete();
         }

@@ -40,12 +40,15 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/events/create', [AdminController::class, 'eventForm'])->name('events.create');
         Route::get('/events/{event}/edit', [AdminController::class, 'eventForm'])->name('events.edit');
         Route::post('/events/{event?}', [AdminController::class, 'saveEvent'])->name('events.save');
+        Route::delete('/events/{event}/thumbnail', [AdminController::class, 'deleteEventThumbnail'])->name('events.thumbnail.delete');
         Route::delete('/events/{event}', [AdminController::class, 'deleteEvent'])->name('events.delete');
         Route::delete('/images/{image}', [AdminController::class, 'deleteImage'])->name('images.delete');
 
         Route::post('/categories/seed/defaults', [AdminController::class, 'seedServices'])->name('categories.seed');
         Route::get('/categories/{category}/page', [AdminController::class, 'categoryPage'])->name('categories.page');
         Route::post('/categories/{category}/page', [AdminController::class, 'saveCategoryPage'])->name('categories.page.save');
+        Route::delete('/categories/{category}/page/images/{field}', [AdminController::class, 'deleteCategoryPageImage'])->name('categories.page.images.delete');
+        Route::delete('/category-content-blocks/{block}/image', [AdminController::class, 'deleteCategoryBlockImage'])->name('category-content-blocks.image.delete');
         Route::get('/categories/{edit?}', [AdminController::class, 'categories'])->name('categories');
         Route::post('/categories/{category?}', [AdminController::class, 'saveCategory'])->name('categories.save');
         Route::delete('/categories/{category}', [AdminController::class, 'deleteCategory'])->name('categories.delete');

@@ -34,6 +34,7 @@
 
 <div class="category-editor">
     <div class="editor-actions">
+        <span class="count-pill" id="category-word-count" data-word-counter data-word-count-scope="#category-page-form" data-word-count-selector='[name="page_title"],[name="subtitle"],[name^="feat"][name$="_title"],[name^="feat"][name$="_desc"],[name="cta_text"],[name$="[heading]"],.block-rich-editor' aria-live="polite">✍ Tổng nội dung: 0 từ</span>
         <a class="btn-primary-custom [background:#64748b]" href="{{ route('admin.categories') }}">← Danh mục</a>
         <a class="btn-primary-custom [background:#fb7185]" href="{{ route('category', $category) }}" target="_blank" rel="noopener">↗ Xem trang</a>
         <button class="btn-primary-custom" form="category-page-form">💾 Lưu nội dung</button>
@@ -49,7 +50,7 @@
                 <input class="form-control-custom" id="page-title-input" name="page_title" value="{{ old('page_title', $page->page_title) }}" placeholder="{{ $category->name }}">
                 <small class="title-counter" id="page-title-counter" aria-live="polite">0 / 60 ký tự</small>
             </div>
-            <div class="form-group"><label class="form-label">Dòng giới thiệu ngắn dưới H1</label><input class="form-control-custom" name="subtitle" value="{{ old('subtitle', $page->subtitle) }}" maxlength="255"></div>
+            <div class="form-group"><label class="form-label">Dòng giới thiệu dưới H1</label><textarea class="form-control-custom textarea" name="subtitle" rows="5" placeholder="Nhập nội dung giới thiệu dưới tiêu đề H1...">{{ old('subtitle', $page->subtitle) }}</textarea><small class="form-help">Không giới hạn số chữ. Có thể kéo góc dưới bên phải để mở rộng hoặc thu gọn ô nhập.</small></div>
         </section>
 
         <section class="section-card">
@@ -60,6 +61,7 @@
                     <div class="page-image-preview">
                         @if($page->service_image)
                             <img src="{{ Str::contains($page->service_image, '/') ? asset('storage/'.$page->service_image) : asset('uploads/services/'.$page->service_image) }}" alt="{{ $page->service_image_alt ?: $category->name }}">
+                            <button class="stored-image-delete" type="submit" form="delete-service-image" aria-label="Xóa ảnh thẻ dịch vụ">× Xóa ảnh</button>
                         @else
                             <span>Chưa có ảnh thẻ dịch vụ</span>
                         @endif
@@ -71,6 +73,7 @@
                     <div class="page-image-preview wide">
                         @if($page->banner_image)
                             <img src="{{ Str::contains($page->banner_image, '/') ? asset('storage/'.$page->banner_image) : asset('uploads/banners/'.$page->banner_image) }}" alt="{{ $page->banner_alt ?: $category->name }}">
+                            <button class="stored-image-delete" type="submit" form="delete-banner-image" aria-label="Xóa ảnh banner">× Xóa ảnh</button>
                         @else
                             <span>Chưa có ảnh banner</span>
                         @endif
@@ -93,7 +96,7 @@
                         <div class="block-grid">
                             <div class="block-image-fields">
                                 <div class="block-image-preview">
-                                    @if($block->image)<img src="{{ Str::contains($block->image, '/') ? asset('storage/'.$block->image) : asset('uploads/services/'.$block->image) }}" alt="{{ $block->image_alt }}">@else<span>Không bắt buộc có ảnh</span>@endif
+                                    @if($block->image)<img src="{{ Str::contains($block->image, '/') ? asset('storage/'.$block->image) : asset('uploads/services/'.$block->image) }}" alt="{{ $block->image_alt }}"><button class="stored-image-delete" type="submit" form="delete-block-image-{{ $block->id }}" aria-label="Xóa ảnh khỏi khối nội dung">× Xóa ảnh</button>@else<span>Không bắt buộc có ảnh</span>@endif
                                 </div>
                                 <div class="form-group"><label class="form-label">Ảnh 16:9 (tùy chọn)</label><input class="form-control-custom block-image-input" type="file" name="blocks[{{ $block->key }}][image]" accept="image/*"></div>
                                 <div class="form-group"><label class="form-label">Alt ảnh{{ $block->image ? ' *' : '' }}</label><input class="form-control-custom block-alt-input" name="blocks[{{ $block->key }}][image_alt]" value="{{ $block->image_alt }}" maxlength="255" placeholder="Bắt buộc khi block có ảnh" {{ $block->image ? 'required' : '' }}></div>
@@ -141,6 +144,15 @@
             </div>
         </section>
     </form>
+    @if($page->service_image)
+        <form id="delete-service-image" class="hidden-form" method="post" action="{{ route('admin.categories.page.images.delete', [$category, 'service_image']) }}" data-confirm="Xóa ảnh thẻ dịch vụ?" data-confirm-title="Xác nhận xóa ảnh">@csrf @method('delete')</form>
+    @endif
+    @if($page->banner_image)
+        <form id="delete-banner-image" class="hidden-form" method="post" action="{{ route('admin.categories.page.images.delete', [$category, 'banner_image']) }}" data-confirm="Xóa ảnh banner?" data-confirm-title="Xác nhận xóa ảnh">@csrf @method('delete')</form>
+    @endif
+    @foreach($editorBlocks->filter(fn ($block) => $block->id && $block->image) as $block)
+        <form id="delete-block-image-{{ $block->id }}" class="hidden-form" method="post" action="{{ route('admin.category-content-blocks.image.delete', $block->id) }}" data-confirm="Xóa ảnh khỏi khối nội dung này? Phần chữ vẫn được giữ nguyên." data-confirm-title="Xác nhận xóa ảnh">@csrf @method('delete')</form>
+    @endforeach
 </div>
 
 <template id="content-block-template">

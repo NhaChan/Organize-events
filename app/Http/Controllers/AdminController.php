@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\CategoryContentBlock;
 use App\Models\Event;
 use App\Models\EventImage;
 use App\Support\PostContent;
@@ -84,10 +85,10 @@ class AdminController extends Controller
             'sale_price' => ['nullable', 'integer', 'min:0'],
             'status' => ['required', Rule::in(['draft', 'published', 'archived'])],
             'meta_title' => ['nullable', 'string', 'max:255'],
-            'meta_description' => ['nullable', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string'],
             'thumbnail' => [Rule::requiredIf($request->boolean('had_thumbnail_upload') && blank($event->thumbnail)), 'nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
             'thumbnail_alt' => [Rule::requiredIf($request->hasFile('thumbnail') || filled($event->thumbnail)), 'nullable', 'string', 'max:255'],
-            'extra_images' => [Rule::requiredIf($request->boolean('had_extra_images_upload')), 'nullable', 'array', 'max:12'],
+            'extra_images' => [Rule::requiredIf($request->boolean('had_extra_images_upload')), 'nullable', 'array'],
             'extra_images.*' => ['image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
             'alt_texts' => ['nullable', 'array'],
             'alt_texts.*' => ['nullable', 'string', 'max:255'],
@@ -111,7 +112,6 @@ class AdminController extends Controller
             'thumbnail.required' => 'Ảnh chính đã bị trình duyệt xóa sau lần báo lỗi. Vui lòng chọn lại ảnh chính.',
             'thumbnail.max' => 'Ảnh chính không được lớn hơn 5MB.',
             'thumbnail.image' => 'Ảnh chính phải là một tệp hình ảnh hợp lệ.',
-            'extra_images.max' => 'Chỉ được tải tối đa 12 ảnh phụ.',
             'extra_images.required' => 'Ảnh phụ đã bị trình duyệt xóa sau lần báo lỗi. Vui lòng chọn lại ảnh phụ.',
             'extra_images.*.max' => 'Mỗi ảnh phụ không được lớn hơn 5MB.',
         ], [
@@ -185,6 +185,17 @@ class AdminController extends Controller
         }
 
         return array_map(fn ($content) => PostContent::sanitize($content), $contents);
+    }
+
+    public function deleteEventThumbnail(Event $event)
+    {
+        $this->removeFile($event->thumbnail);
+        $event->forceFill([
+            'thumbnail' => null,
+            'thumbnail_alt' => null,
+        ])->save();
+
+        return redirect()->route('admin.events.edit', $event)->with('success', 'Đã xóa ảnh đại diện.');
     }
 
     public function deleteImage(EventImage $image)
@@ -277,7 +288,7 @@ class AdminController extends Controller
 
         $data = $request->validate([
             'page_title' => ['nullable', 'string', 'max:255'],
-            'subtitle' => ['nullable', 'string', 'max:255'],
+            'subtitle' => ['nullable', 'string'],
             'description' => ['nullable', 'string'],
             'banner_alt' => ['nullable', 'string', 'max:255'],
             'service_image_alt' => ['nullable', 'string', 'max:255'],
@@ -384,6 +395,37 @@ class AdminController extends Controller
         }
 
         return back()->with('success', 'Đã cập nhật nội dung trang dịch vụ.');
+    }
+
+    public function deleteCategoryPageImage(Category $category, string $field)
+    {
+        abort_unless(in_array($field, ['service_image', 'banner_image'], true), 404);
+
+        $page = $category->page;
+        abort_unless($page, 404);
+
+        $this->removeFile($page->{$field});
+        $page->forceFill([
+            $field => null,
+            $field === 'banner_image' ? 'banner_alt' : 'service_image_alt' => null,
+        ])->save();
+
+        $label = $field === 'banner_image' ? 'ảnh banner' : 'ảnh thẻ dịch vụ';
+
+        return redirect()->route('admin.categories.page', $category)->with('success', "Đã xóa {$label}.");
+    }
+
+    public function deleteCategoryBlockImage(CategoryContentBlock $block)
+    {
+        $category = $block->page->category;
+
+        $this->removeFile($block->image);
+        $block->forceFill([
+            'image' => null,
+            'image_alt' => null,
+        ])->save();
+
+        return redirect()->route('admin.categories.page', $category)->with('success', 'Đã xóa ảnh khỏi khối nội dung.');
     }
 
     public function settings()

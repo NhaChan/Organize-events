@@ -81,4 +81,28 @@ class EventThumbnailAltTest extends TestCase
         $this->assertSame('Không gian sinh nhật trang trí màu hồng', $event->thumbnail_alt);
         $event->delete();
     }
+
+    public function test_admin_can_upload_more_than_twelve_extra_images(): void
+    {
+        Storage::fake('public');
+        $this->actingAs(Admin::firstOrFail(), 'admin');
+        $slug = 'nhieu-anh-phu-'.uniqid();
+        $images = collect(range(1, 13))
+            ->map(fn (int $index) => UploadedFile::fake()->image("anh-phu-{$index}.jpg"))
+            ->all();
+
+        $this->post(route('admin.events.save'), [
+            'title' => 'Bài viết có nhiều ảnh phụ',
+            'slug' => $slug,
+            'status' => 'draft',
+            'had_extra_images_upload' => '1',
+            'extra_images' => $images,
+        ])->assertSessionHasNoErrors()
+            ->assertRedirect(route('admin.events.create'));
+
+        $event = Event::where('slug', $slug)->firstOrFail();
+        $this->assertCount(13, $event->images);
+        $event->images()->delete();
+        $event->delete();
+    }
 }

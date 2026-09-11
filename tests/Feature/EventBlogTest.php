@@ -37,7 +37,7 @@ class EventBlogTest extends TestCase
         $this->actingAs(Admin::firstOrFail(), 'admin');
         $this->get('/admin')->assertOk();
         $this->get('/admin/events')->assertOk();
-        $this->get('/admin/events/create')->assertOk();
+        $this->get('/admin/events/create')->assertOk()->assertSee('data-word-counter', false);
         $this->get('/admin/categories')->assertOk();
         $this->get(route('admin.categories.page', Category::firstOrFail()))->assertOk();
         $this->get('/admin/settings/site')->assertOk()->assertSee('confirm-modal');

@@ -60,5 +60,29 @@
 const sidebar=document.getElementById('admin-sidebar');const overlay=document.getElementById('sidebar-overlay');const closeMenu=()=>{sidebar.classList.remove('open');overlay.classList.remove('show')};document.getElementById('sidebar-toggle').addEventListener('click',()=>{sidebar.classList.toggle('open');overlay.classList.toggle('show')});overlay.addEventListener('click',closeMenu);
 const confirmModal=document.getElementById('confirm-modal');const confirmTitle=document.getElementById('confirm-title');const confirmMessage=document.getElementById('confirm-message');const confirmAccept=document.getElementById('confirm-accept');let pendingForm=null;let pendingSubmitter=null;const closeConfirm=()=>{confirmModal.hidden=true;document.body.classList.remove('modal-open');pendingForm=null;pendingSubmitter=null};document.addEventListener('submit',event=>{const form=event.target;if(!form.dataset.confirm||form.dataset.confirmed==='1'){delete form.dataset.confirmed;return}event.preventDefault();pendingForm=form;pendingSubmitter=event.submitter;confirmTitle.textContent=form.dataset.confirmTitle||'Xác nhận thao tác';confirmMessage.textContent=form.dataset.confirm;confirmModal.hidden=false;document.body.classList.add('modal-open');confirmAccept.focus()});confirmAccept.addEventListener('click',()=>{if(!pendingForm)return;const form=pendingForm;const submitter=pendingSubmitter;form.dataset.confirmed='1';confirmModal.hidden=true;document.body.classList.remove('modal-open');submitter?form.requestSubmit(submitter):form.requestSubmit()});document.querySelectorAll('[data-modal-close]').forEach(button=>button.addEventListener('click',closeConfirm));document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!confirmModal.hidden)closeConfirm()});
 </script>
+<script>
+document.querySelectorAll('[data-word-counter]').forEach(counter => {
+    const scope = document.querySelector(counter.dataset.wordCountScope);
+    const selector = counter.dataset.wordCountSelector;
+
+    if (!scope || !selector) return;
+
+    const update = () => {
+        const text = Array.from(scope.querySelectorAll(selector))
+            .filter(element => !element.disabled && !element.closest('.removed'))
+            .map(element => 'value' in element ? element.value : element.innerText)
+            .join(' ');
+        const total = (text.match(/[\p{L}\p{N}]+/gu) || []).length;
+
+        counter.textContent = '✍ Tổng nội dung: '
+            + new Intl.NumberFormat('vi-VN').format(total)
+            + ' từ';
+    };
+
+    scope.addEventListener('input', update);
+    scope.addEventListener('click', () => queueMicrotask(update));
+    update();
+});
+</script>
 </body>
 </html>
