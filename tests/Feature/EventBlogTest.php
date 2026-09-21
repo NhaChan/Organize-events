@@ -29,6 +29,58 @@ class EventBlogTest extends TestCase
         $this->get(route('event', $event))->assertOk()->assertSee($event->title)->assertSee('class="service-sidebar"', false);
     }
 
+    public function test_home_uses_latest_child_categories_for_service_cards(): void
+    {
+        $expectedIds = Category::query()
+            ->whereNotNull('parent_id')
+            ->latest('created_at')
+            ->latest('id')
+            ->limit(8)
+            ->pluck('id')
+            ->all();
+
+        $this->get('/')
+            ->assertOk()
+            ->assertViewHas('serviceCategories', fn ($categories) =>
+                $categories->pluck('id')->all() === $expectedIds
+                && $categories->every(fn ($category) => $category->parent_id !== null)
+            );
+    }
+
+    public function test_home_shows_eight_latest_published_events_in_order(): void
+    {
+        $expectedIds = Event::query()
+            ->where('status', 'published')
+            ->latest()
+            ->limit(8)
+            ->pluck('id')
+            ->all();
+
+        $this->get('/')
+            ->assertOk()
+            ->assertViewHas('latest', fn ($events) => $events->pluck('id')->all() === $expectedIds);
+    }
+
+    public function test_services_page_paginates_latest_child_categories_on_the_backend(): void
+    {
+        $expectedIds = Category::query()
+            ->whereNotNull('parent_id')
+            ->latest('created_at')
+            ->latest('id')
+            ->limit(9)
+            ->pluck('id')
+            ->all();
+
+        $this->get(route('services'))
+            ->assertOk()
+            ->assertViewHas('categories', fn ($categories) =>
+                $categories instanceof \Illuminate\Pagination\LengthAwarePaginator
+                && $categories->perPage() === 9
+                && $categories->pluck('id')->all() === $expectedIds
+                && $categories->every(fn ($category) => $category->parent_id !== null)
+            );
+    }
+
     public function test_admin_pages_require_login_and_render_after_authentication(): void
     {
         $this->get('/admin')->assertRedirect(route('login'));
@@ -38,7 +90,11 @@ class EventBlogTest extends TestCase
         $this->get('/admin')->assertOk();
         $this->get('/admin/events')->assertOk();
         $this->get('/admin/events/create')->assertOk()->assertSee('data-word-counter', false);
-        $this->get('/admin/categories')->assertOk();
+        $this->get('/admin/categories')
+            ->assertOk()
+            ->assertSee('id="category-list-meta-description-count"', false)
+            ->assertSee('vẫn có thể lưu')
+            ->assertDontSee('name="description" maxlength=', false);
         $this->get(route('admin.categories.page', Category::firstOrFail()))->assertOk();
         $this->get('/admin/settings/site')->assertOk()->assertSee('confirm-modal');
         $this->get('/admin/settings/site')->assertSee('name="zalo"', false);
@@ -68,6 +124,11 @@ class EventBlogTest extends TestCase
             ->assertRedirect(route('home'));
 
         $this->get('/bai-viet/bai-viet-da-bi-xoa-'.uniqid())
+            ->assertRedirect(route('home'));
+        $this->get('/lien-ket-noi-bo/khong-ton-tai/'.uniqid())
+            ->assertRedirect(route('home'));
+
+        $this->get('/danh-muc/danh-muc-da-bi-xoa-'.uniqid())
             ->assertRedirect(route('home'));
     }
 

@@ -10,6 +10,19 @@ use Tests\TestCase;
 
 class EventThumbnailAltTest extends TestCase
 {
+    public function test_admin_form_exposes_image_fit_and_vertical_position_controls(): void
+    {
+        $event = Event::firstOrFail();
+
+        $this->actingAs(Admin::firstOrFail(), 'admin')
+            ->get(route('admin.events.edit', $event))
+            ->assertOk()
+            ->assertSee('name="thumbnail_fit"', false)
+            ->assertSee('name="thumbnail_position_y"', false)
+            ->assertSee('data-image-position', false)
+            ->assertSee('Vừa khung, không cắt');
+    }
+
     public function test_form_requires_reselecting_an_image_lost_after_validation_redirect(): void
     {
         $this->actingAs(Admin::firstOrFail(), 'admin');
@@ -97,11 +110,15 @@ class EventThumbnailAltTest extends TestCase
             'status' => 'draft',
             'had_extra_images_upload' => '1',
             'extra_images' => $images,
+            'image_fits' => [0 => 'contain'],
+            'image_positions' => [0 => 20],
         ])->assertSessionHasNoErrors()
             ->assertRedirect(route('admin.events.create'));
 
         $event = Event::where('slug', $slug)->firstOrFail();
         $this->assertCount(13, $event->images);
+        $this->assertSame('contain', $event->images->first()->display_fit);
+        $this->assertSame(20, $event->images->first()->position_y);
         $event->images()->delete();
         $event->delete();
     }

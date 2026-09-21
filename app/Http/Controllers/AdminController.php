@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\CategoryContentBlock;
+use App\Models\CategoryPageImage;
 use App\Models\Event;
 use App\Models\EventImage;
 use App\Support\PostContent;
@@ -77,17 +78,24 @@ class AdminController extends Controller
             'category_id' => ['nullable', 'exists:categories,id'],
             'summary' => ['required_if:status,published', 'nullable', 'string', 'max:1000'],
             'content' => ['required_if:status,published', 'nullable', 'string'],
+            'content_title' => ['nullable', 'string', 'max:255'],
             'after_gallery_title' => ['nullable', 'string', 'max:255'],
             'after_gallery_content' => ['nullable', 'string'],
             'event_date' => ['nullable', 'date'],
             'location' => ['nullable', 'string', 'max:255'],
             'original_price' => ['nullable', 'integer', 'min:0'],
             'sale_price' => ['nullable', 'integer', 'min:0'],
+            'price_details' => ['nullable', 'array', 'max:20'],
+            'price_details.*' => ['array:label,value'],
+            'price_details.*.label' => ['nullable', 'string', 'max:100'],
+            'price_details.*.value' => ['nullable', 'string', 'max:255'],
             'status' => ['required', Rule::in(['draft', 'published', 'archived'])],
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string'],
             'thumbnail' => [Rule::requiredIf($request->boolean('had_thumbnail_upload') && blank($event->thumbnail)), 'nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
             'thumbnail_alt' => [Rule::requiredIf($request->hasFile('thumbnail') || filled($event->thumbnail)), 'nullable', 'string', 'max:255'],
+            'thumbnail_fit' => ['nullable', Rule::in(['cover', 'contain'])],
+            'thumbnail_position_y' => ['nullable', 'integer', 'between:0,100'],
             'extra_images' => [Rule::requiredIf($request->boolean('had_extra_images_upload')), 'nullable', 'array'],
             'extra_images.*' => ['image', 'mimes:jpg,jpeg,png,webp,gif', 'max:5120'],
             'alt_texts' => ['nullable', 'array'],
@@ -96,12 +104,20 @@ class AdminController extends Controller
             'image_titles.*' => ['nullable', 'string', 'max:255'],
             'image_contents' => ['nullable', 'array'],
             'image_contents.*' => ['nullable', 'string'],
+            'image_fits' => ['nullable', 'array'],
+            'image_fits.*' => ['nullable', Rule::in(['cover', 'contain'])],
+            'image_positions' => ['nullable', 'array'],
+            'image_positions.*' => ['nullable', 'integer', 'between:0,100'],
             'existing_alt_texts' => ['nullable', 'array'],
             'existing_alt_texts.*' => ['nullable', 'string', 'max:255'],
             'existing_image_titles' => ['nullable', 'array'],
             'existing_image_titles.*' => ['nullable', 'string', 'max:255'],
             'existing_image_contents' => ['nullable', 'array'],
             'existing_image_contents.*' => ['nullable', 'string'],
+            'existing_image_fits' => ['nullable', 'array'],
+            'existing_image_fits.*' => ['nullable', Rule::in(['cover', 'contain'])],
+            'existing_image_positions' => ['nullable', 'array'],
+            'existing_image_positions.*' => ['nullable', 'integer', 'between:0,100'],
             'had_thumbnail_upload' => ['nullable', 'boolean'],
             'had_extra_images_upload' => ['nullable', 'boolean'],
         ], [
@@ -130,7 +146,16 @@ class AdminController extends Controller
             'meta_description' => 'Meta Description',
         ]);
 
-        unset($data['extra_images'], $data['alt_texts'], $data['image_titles'], $data['image_contents'], $data['existing_alt_texts'], $data['existing_image_titles'], $data['existing_image_contents'], $data['had_thumbnail_upload'], $data['had_extra_images_upload']);
+        $data['price_details'] = collect($data['price_details'] ?? [])
+            ->map(fn (array $row) => [
+                'label' => trim($row['label'] ?? ''),
+                'value' => trim($row['value'] ?? ''),
+            ])
+            ->filter(fn (array $row) => $row['label'] !== '' || $row['value'] !== '')
+            ->values()
+            ->all() ?: null;
+
+        unset($data['extra_images'], $data['alt_texts'], $data['image_titles'], $data['image_contents'], $data['image_fits'], $data['image_positions'], $data['existing_alt_texts'], $data['existing_image_titles'], $data['existing_image_contents'], $data['existing_image_fits'], $data['existing_image_positions'], $data['had_thumbnail_upload'], $data['had_extra_images_upload']);
         if ($request->hasFile('thumbnail')) {
             $this->removeFile($event->thumbnail);
             $data['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
@@ -142,16 +167,22 @@ class AdminController extends Controller
             array_keys((array) $request->input('existing_alt_texts', [])),
             array_keys((array) $request->input('existing_image_titles', [])),
             array_keys((array) $request->input('existing_image_contents', [])),
+            array_keys((array) $request->input('existing_image_fits', [])),
+            array_keys((array) $request->input('existing_image_positions', [])),
         ])->flatten()->unique();
 
         foreach ($existingImageIds as $imageId) {
             $title = $request->input("existing_image_titles.{$imageId}");
             $content = $request->input("existing_image_contents.{$imageId}");
             $alt = $request->input("existing_alt_texts.{$imageId}");
+            $fit = $request->input("existing_image_fits.{$imageId}", 'cover');
+            $position = $request->integer("existing_image_positions.{$imageId}", 50);
             $event->images()->whereKey($imageId)->update([
                 'title' => filled($title) ? trim($title) : null,
                 'content' => filled($content) ? $content : null,
                 'alt_text' => filled($alt) ? trim($alt) : null,
+                'display_fit' => $fit,
+                'position_y' => $position,
             ]);
         }
 
@@ -167,6 +198,8 @@ class AdminController extends Controller
                 'alt_text' => filled($request->input("alt_texts.{$index}"))
                     ? trim($request->input("alt_texts.{$index}"))
                     : null,
+                'display_fit' => $request->input("image_fits.{$index}", 'cover'),
+                'position_y' => $request->integer("image_positions.{$index}", 50),
                 'sort_order' => $nextSort + $index,
             ]);
         }
@@ -289,11 +322,24 @@ class AdminController extends Controller
         $data = $request->validate([
             'page_title' => ['nullable', 'string', 'max:255'],
             'subtitle' => ['nullable', 'string'],
+            'category_description' => ['nullable', 'string'],
             'description' => ['nullable', 'string'],
             'banner_alt' => ['nullable', 'string', 'max:255'],
+            'banner_caption' => ['nullable', 'string', 'max:255'],
             'service_image_alt' => ['nullable', 'string', 'max:255'],
+            'service_image_caption' => ['nullable', 'string', 'max:255'],
+            'service_image_fit' => ['nullable', Rule::in(['cover', 'contain'])],
+            'service_image_position_y' => ['nullable', 'integer', 'between:0,100'],
+            'banner_image_fit' => ['nullable', Rule::in(['cover', 'contain'])],
+            'banner_image_position_y' => ['nullable', 'integer', 'between:0,100'],
             'banner_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:6144'],
             'service_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:6144'],
+            'gallery_images' => ['nullable', 'array'],
+            'gallery_images.*' => ['image', 'mimes:jpg,jpeg,png,webp,gif', 'max:6144'],
+            'gallery_alts' => ['nullable', 'array'],
+            'gallery_alts.*' => ['nullable', 'string', 'max:255'],
+            'existing_gallery_alts' => ['nullable', 'array'],
+            'existing_gallery_alts.*' => ['nullable', 'string', 'max:255'],
             'feat1_icon' => ['nullable', 'string', 'max:20'],
             'feat1_title' => ['nullable', 'string', 'max:100'],
             'feat1_desc' => ['nullable', 'string', 'max:200'],
@@ -311,12 +357,20 @@ class AdminController extends Controller
             'blocks.*.content' => ['nullable', 'string'],
             'blocks.*.after_content' => ['nullable', 'string'],
             'blocks.*.image_alt' => ['nullable', 'string', 'max:255'],
+            'blocks.*.image_caption' => ['nullable', 'string', 'max:255'],
+            'blocks.*.image_fit' => ['nullable', Rule::in(['cover', 'contain'])],
+            'blocks.*.image_position_y' => ['nullable', 'integer', 'between:0,100'],
             'blocks.*.image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:6144'],
             'blocks.*.remove' => ['nullable', 'boolean'],
         ]);
 
         $blockInputs = $data['blocks'] ?? [];
-        unset($data['blocks']);
+        unset(
+            $data['blocks'],
+            $data['gallery_images'],
+            $data['gallery_alts'],
+            $data['existing_gallery_alts'],
+        );
 
         if ($request->hasFile('banner_image') && blank($data['banner_alt'] ?? null)) {
             throw ValidationException::withMessages(['banner_alt' => 'Ảnh banner bắt buộc phải có Alt ảnh.']);
@@ -347,8 +401,33 @@ class AdminController extends Controller
             }
         }
 
+        if ($request->exists('category_description')) {
+            $category->forceFill([
+                'description' => filled($data['category_description'] ?? null) ? trim($data['category_description']) : null,
+            ])->save();
+        }
+        unset($data['category_description']);
+
         $page->fill($data);
         $category->page()->save($page);
+
+        foreach ((array) $request->input('existing_gallery_alts', []) as $imageId => $alt) {
+            $page->galleryImages()->whereKey($imageId)->update([
+                'alt_text' => filled($alt) ? trim($alt) : null,
+            ]);
+        }
+
+        $nextGallerySort = (int) $page->galleryImages()->max('sort_order') + 1;
+
+        foreach ((array) $request->file('gallery_images', []) as $index => $file) {
+            $page->galleryImages()->create([
+                'image_path' => $file->store('category-gallery', 'public'),
+                'alt_text' => filled($request->input("gallery_alts.{$index}"))
+                    ? trim($request->input("gallery_alts.{$index}"))
+                    : null,
+                'sort_order' => $nextGallerySort + $index,
+            ]);
+        }
 
         foreach ($blockInputs as $key => $blockInput) {
             $block = filled($blockInput['id'] ?? null)
@@ -389,6 +468,9 @@ class AdminController extends Controller
             $blockInput['content'] = filled($blockInput['content'] ?? null) ? trim($blockInput['content']) : null;
             $blockInput['after_content'] = filled($blockInput['after_content'] ?? null) ? trim($blockInput['after_content']) : null;
             $blockInput['image_alt'] = filled($blockInput['image_alt'] ?? null) ? trim($blockInput['image_alt']) : null;
+            $blockInput['image_caption'] = filled($blockInput['image_caption'] ?? null) ? trim($blockInput['image_caption']) : null;
+            $blockInput['image_fit'] = $blockInput['image_fit'] ?? 'cover';
+            $blockInput['image_position_y'] = (int) ($blockInput['image_position_y'] ?? 50);
             $blockInput['sort_order'] = array_search($key, array_keys($blockInputs), true);
             $block->fill($blockInput);
             $page->contentBlocks()->save($block);
@@ -408,6 +490,9 @@ class AdminController extends Controller
         $page->forceFill([
             $field => null,
             $field === 'banner_image' ? 'banner_alt' : 'service_image_alt' => null,
+            $field === 'banner_image' ? 'banner_caption' : 'service_image_caption' => null,
+            $field === 'banner_image' ? 'banner_image_fit' : 'service_image_fit' => 'cover',
+            $field === 'banner_image' ? 'banner_image_position_y' : 'service_image_position_y' => 50,
         ])->save();
 
         $label = $field === 'banner_image' ? 'ảnh banner' : 'ảnh thẻ dịch vụ';
@@ -423,9 +508,22 @@ class AdminController extends Controller
         $block->forceFill([
             'image' => null,
             'image_alt' => null,
+            'image_caption' => null,
+            'image_fit' => 'cover',
+            'image_position_y' => 50,
         ])->save();
 
         return redirect()->route('admin.categories.page', $category)->with('success', 'Đã xóa ảnh khỏi khối nội dung.');
+    }
+
+    public function deleteCategoryGalleryImage(CategoryPageImage $image)
+    {
+        $category = $image->page->category;
+
+        $this->removeFile($image->image_path);
+        $image->delete();
+
+        return redirect()->route('admin.categories.page', $category)->with('success', 'Đã xóa ảnh khỏi thư viện.');
     }
 
     public function settings()

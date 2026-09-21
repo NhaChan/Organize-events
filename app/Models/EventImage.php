@@ -8,7 +8,9 @@ class EventImage extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['event_id', 'image_path', 'title', 'content', 'alt_text', 'sort_order'];
+    protected $fillable = ['event_id', 'image_path', 'title', 'content', 'alt_text', 'display_fit', 'position_y', 'sort_order'];
+
+    protected $casts = ['position_y' => 'integer'];
 
     public function event()
     {

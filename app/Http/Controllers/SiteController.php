@@ -11,17 +11,22 @@ class SiteController extends Controller
 {
     private function base(array $data = []): array
     {
-        $sidebarCategories = Category::query()
-            ->whereHas('events', fn ($query) => $query->where('status', 'published'))
-            ->with([
-                'parent:id,name,slug',
-                'events' => fn ($query) => $query
-                    ->where('status', 'published')
-                    ->latest(),
-            ])
-            ->get()
-            ->sortByDesc(fn (Category $category) => $category->events->max('created_at'))
-            ->values();
+        $sidebarCategories = request()->routeIs('home')
+            ? collect()
+            : Category::query()
+                ->whereHas('events', fn ($query) => $query->where('status', 'published'))
+                ->withCount(['events as published_events_count' => fn ($query) => $query->where('status', 'published')])
+                ->withMax(['events as latest_published_at' => fn ($query) => $query->where('status', 'published')], 'created_at')
+                ->with([
+                    'parent:id,name,slug',
+                    'events' => fn ($query) => $query
+                        ->where('status', 'published')
+                        ->latest()
+                        ->limit(5),
+                ])
+                ->orderByDesc('latest_published_at')
+                ->orderByDesc('id')
+                ->get();
 
         return array_merge([
             'settings' => SiteSettings::all(),
@@ -38,15 +43,15 @@ class SiteController extends Controller
     {
         return view('site.home', $this->base([
             'categories' => Category::whereNull('parent_id')
-                ->with('page', 'children')
-                ->withCount(['events' => fn ($query) => $query->where('status', 'published')])
-                ->orderBy('name')
+                ->with('page')
+                ->latest('created_at')
                 ->get(),
-            'featured' => Event::with('category')
-                ->where('status', 'published')
-                ->where(fn ($query) => $query->whereNull('event_date')->orWhere('event_date', '>=', now()))
-                ->orderByRaw('event_date IS NULL, event_date')
-                ->limit(6)
+            'serviceCategories' => Category::query()
+                ->whereNotNull('parent_id')
+                ->with(['page', 'parent:id,name,slug'])
+                ->latest('created_at')
+                ->latest('id')
+                ->limit(8)
                 ->get(),
             'latest' => Event::with('category')
                 ->where('status', 'published')
@@ -85,11 +90,12 @@ class SiteController extends Controller
     public function services()
     {
         return view('site.services', $this->base([
-            'categories' => Category::whereNull('parent_id')
-                ->with('page', 'children')
+            'categories' => Category::whereNotNull('parent_id')
+                ->with(['page', 'parent:id,name,slug'])
                 ->withCount(['events' => fn ($query) => $query->where('status', 'published')])
-                ->orderBy('name')
-                ->paginate(6),
+                ->latest('created_at')
+                ->latest('id')
+                ->paginate(9),
         ]));
     }
 

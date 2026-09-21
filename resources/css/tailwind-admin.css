@@ -290,7 +290,7 @@ body{@apply [background:linear-gradient(145deg,#fff7f9_0%,#fffaf4_52%,#fff_100%)
 .block-image-fields{@apply [order:3];}
 .block-fields>.form-group:nth-child(3){@apply [order:4] [margin-bottom:0];}
 .block-image-preview{@apply [position:relative] [width:100%] [aspect-ratio:16/9] [border:1px_dashed_var(--border)] [border-radius:10px] [display:grid] [place-items:center] [overflow:hidden] [background:#f8fafc] [color:var(--muted)] [font-size:.78rem];}
-.block-image-preview img{@apply [width:100%] [height:100%] [object-fit:cover];}
+.block-image-preview img{@apply [position:absolute] [inset:0] [display:block] [width:100%] [height:100%] [object-fit:cover];}
 .title-counter{@apply [display:block] [margin-top:6px] [color:#64748b] [font-size:.75rem];}
 .title-counter.over-limit{@apply [color:#dc2626] [font-weight:800];}
 .block-rich-toolbar{@apply [display:flex] [gap:8px] [flex-wrap:wrap] [margin-bottom:8px];}
@@ -300,15 +300,32 @@ body{@apply [background:linear-gradient(145deg,#fff7f9_0%,#fffaf4_52%,#fff_100%)
 .block-rich-editor:empty:before{@apply [content:attr(data-placeholder)] [color:#94a3b8];}
 .block-rich-editor a{@apply [color:#1677c8] [text-decoration:none];}
 .add-block{@apply [width:100%] [margin-top:14px] [padding:13px] [border:2px_dashed_#fda4af] [border-radius:12px] [background:#fff8fa] [color:var(--accent)] [font:inherit] [font-weight:800] [cursor:pointer];}
+.add-block.compact{@apply [width:auto] [padding:9px_13px] [font-size:.82rem];}
+.admin-price-box{@apply [margin:4px_0_20px] [padding:18px] [border:1px_solid_#fed7e2] [border-radius:14px] [background:#fffafb];}
+.admin-price-box .section-title{@apply [margin:0_0_15px];}
+.admin-price-box .section-title small{@apply [color:var(--muted)] [font-size:.75rem] [font-weight:600];}
+.price-detail-admin-list{@apply [display:grid] [gap:9px] [margin-top:12px];}
+.price-detail-admin-row{@apply [display:grid] [grid-template-columns:minmax(130px,.7fr)_minmax(200px,1.3fr)_38px] [gap:8px] [align-items:center];}
+.price-detail-admin-row .image-delete{@apply [height:38px] [margin:0] [font-size:1rem];}
 .section-help{@apply [color:var(--muted)] [font-size:.8rem] [line-height:1.6] [margin:7px_0_0];}
 .page-image-grid{@apply [display:grid] [grid-template-columns:repeat(2,minmax(0,1fr))] [gap:18px] [margin-top:18px];}
 .page-image-field{@apply [min-width:0] [padding:14px] [border:1px_solid_var(--border)] [border-radius:12px] [background:#f8fafc];}
 .page-image-preview{@apply [position:relative] [display:flex] [align-items:center] [justify-content:center] [width:100%] [aspect-ratio:4/3] [margin-bottom:14px] [overflow:hidden] [border:2px_dashed_var(--border)] [border-radius:10px] [background:#fff] [color:var(--muted)] [font-size:.8rem];}
 .page-image-preview.wide{@apply [aspect-ratio:16/7];}
 .page-image-preview img{@apply [display:block] [width:100%] [height:100%] [object-fit:cover];}
+.category-gallery-admin-grid,.category-gallery-new-grid{@apply [display:grid] [grid-template-columns:repeat(3,minmax(0,1fr))] [gap:14px] [margin:16px_0];}
+.category-gallery-new-grid:empty{@apply [display:none];}
+.category-gallery-admin-item{@apply [min-width:0] [padding:12px] [border:1px_solid_var(--border)] [border-radius:12px] [background:#f8fafc];}
+.category-gallery-admin-preview{@apply [position:relative] [width:100%] [aspect-ratio:4/3] [margin-bottom:12px] [overflow:hidden] [border-radius:9px] [background:#fff];}
+.category-gallery-admin-preview img{@apply [display:block] [width:100%] [height:100%] [object-fit:cover];}
+.category-gallery-admin-item .form-group{@apply [margin-bottom:0];}
 @media(max-width:720px){
 .editor-actions>*{@apply [flex:1] [justify-content:center];}
 .page-image-grid{@apply [grid-template-columns:1fr];}
+.category-gallery-admin-grid,.category-gallery-new-grid{@apply [grid-template-columns:1fr];}
+.price-detail-admin-row{@apply [grid-template-columns:1fr_38px];}
+.price-detail-admin-row input:nth-child(2){@apply [grid-column:1];}
+.price-detail-admin-row .image-delete{@apply [grid-column:2] [grid-row:1/3];}
 }
 .form-grid{@apply [display:grid] [grid-template-columns:1fr_320px] [gap:20px] [align-items:start];}
 .tab-btns{@apply [display:flex] [gap:6px] [margin-bottom:16px];}
@@ -322,6 +339,19 @@ body{@apply [background:linear-gradient(145deg,#fff7f9_0%,#fffaf4_52%,#fff_100%)
 .img-item{@apply [position:relative];}
 .img-item img{@apply [width:100%] [aspect-ratio:1] [object-fit:cover] [border-radius:8px] [border:1px_solid_var(--border)];}
 .image-delete{@apply [width:100%] [margin-top:4px] [border:0] [border-radius:6px] [padding:5px] [background:#fff1f2] [color:#be123c] [cursor:pointer];}
+.image-display-controls{@apply [display:grid] [grid-template-columns:minmax(150px,.8fr)_minmax(180px,1.2fr)] [gap:12px] [margin-top:14px] [padding:12px] [border:1px_solid_var(--border)] [border-radius:10px] [background:#f8fafc];}
+.image-display-controls label{@apply [display:grid] [gap:6px] [color:#475569] [font-size:.75rem] [font-weight:800];}
+.image-display-controls label span{@apply [color:var(--accent)] [font-weight:900];}
+.image-display-controls input[type="range"]{@apply [width:100%] [accent-color:var(--accent)] [cursor:pointer];}
+.image-display-controls.compact{@apply [grid-template-columns:1fr] [gap:9px] [margin-top:8px] [padding:9px];}
+.image-display-controls.compact .image-description{@apply [width:100%];}
+.image-preview-column{@apply [display:grid] [gap:8px] [min-width:0];}
+.image-preview-column>img{@apply [display:block] [width:100%] [height:150px] [object-fit:cover] [border:1px_solid_var(--border)] [border-radius:9px] [background:#f8fafc];}
+.thumb-preview+.image-display-controls,.page-image-preview+.image-display-controls,.block-image-preview+.image-display-controls{@apply [margin-top:8px] [margin-bottom:12px];}
+@media(max-width:720px){
+.image-display-controls{@apply [grid-template-columns:1fr];}
+.image-preview-column>img{@apply [height:240px];}
+}
 .stored-image-delete{@apply [position:absolute] [right:10px] [top:10px] [z-index:2] [padding:7px_10px] [border:1px_solid_#fecdd3] [border-radius:8px] [background:rgba(255,255,255,.94)] [color:#be123c] [font:inherit] [font-size:.75rem] [font-weight:800] [cursor:pointer] [box-shadow:0_5px_16px_#0f172a26] [transition:.2s];}
 .stored-image-delete:hover{@apply [border-color:#e11d48] [background:#e11d48] [color:#fff] [transform:translateY(-1px)];}
 .stored-image-delete:focus-visible{@apply [outline:3px_solid_#fda4af] [outline-offset:2px];}

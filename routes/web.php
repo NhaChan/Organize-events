@@ -49,6 +49,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/categories/{category}/page', [AdminController::class, 'saveCategoryPage'])->name('categories.page.save');
         Route::delete('/categories/{category}/page/images/{field}', [AdminController::class, 'deleteCategoryPageImage'])->name('categories.page.images.delete');
         Route::delete('/category-content-blocks/{block}/image', [AdminController::class, 'deleteCategoryBlockImage'])->name('category-content-blocks.image.delete');
+        Route::delete('/category-page-images/{image}', [AdminController::class, 'deleteCategoryGalleryImage'])->name('category-page-images.delete');
         Route::get('/categories/{edit?}', [AdminController::class, 'categories'])->name('categories');
         Route::post('/categories/{category?}', [AdminController::class, 'saveCategory'])->name('categories.save');
         Route::delete('/categories/{category}', [AdminController::class, 'deleteCategory'])->name('categories.delete');
@@ -57,3 +58,5 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/settings/site', [AdminController::class, 'saveSettings'])->name('settings.save');
     });
 });
+
+Route::fallback(fn () => redirect()->route('home'));

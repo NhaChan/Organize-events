@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Event extends Model
 {
-    protected $fillable = ['category_id', 'title', 'slug', 'summary', 'content', 'after_gallery_title', 'after_gallery_content', 'thumbnail', 'thumbnail_alt', 'event_date', 'location', 'original_price', 'sale_price', 'status', 'view_count', 'meta_title', 'meta_description'];
+    protected $fillable = ['category_id', 'title', 'slug', 'summary', 'content', 'content_title', 'after_gallery_title', 'after_gallery_content', 'thumbnail', 'thumbnail_alt', 'thumbnail_fit', 'thumbnail_position_y', 'event_date', 'location', 'original_price', 'sale_price', 'price_details', 'status', 'view_count', 'meta_title', 'meta_description'];
 
-    protected $casts = ['event_date' => 'datetime', 'view_count' => 'integer', 'original_price' => 'integer', 'sale_price' => 'integer'];
+    protected $casts = ['event_date' => 'datetime', 'view_count' => 'integer', 'original_price' => 'integer', 'sale_price' => 'integer', 'price_details' => 'array', 'thumbnail_position_y' => 'integer'];
 
     public function category()
     {

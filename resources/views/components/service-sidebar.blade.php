@@ -23,7 +23,7 @@
                             @if($category->parent)<small>{{ $category->parent->name }}</small>@endif
                             {{ $category->name }}
                         </span>
-                        <b><em>{{ $category->events->count() }}</em>›</b>
+                        <b><em>{{ $category->published_events_count }}</em>›</b>
                     </a>
                     <div class="service-sidebar-children">
                         @foreach($category->events as $sidebarEvent)
@@ -36,7 +36,7 @@
                             @endphp
                             <a class="{{ $routeEvent instanceof \App\Models\Event && $routeEvent->is($sidebarEvent) ? 'active' : '' }}" href="{{ route('event', $sidebarEvent) }}">
                                 <span class="service-sidebar-thumb">
-                                    @if($sidebarThumbnail)<img src="{{ $sidebarThumbnail }}" alt="" loading="lazy">@else<i aria-hidden="true">🎈</i>@endif
+                                    @if($sidebarThumbnail)<img src="{{ $sidebarThumbnail }}" alt="" loading="lazy" decoding="async" width="96" height="72">@else<i aria-hidden="true">🎈</i>@endif
                                 </span>
                                 <span class="service-sidebar-copy">
                                     <span>{{ $sidebarEvent->title }}</span>

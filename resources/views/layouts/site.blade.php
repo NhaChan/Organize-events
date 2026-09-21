@@ -1,14 +1,23 @@
 <!doctype html>
 <html lang="vi">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VCWMGXFYWP"></script>
     <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-VCWMGXFYWP');
+    const loadAnalytics = () => {
+        if (document.querySelector('script[data-google-analytics]')) return;
+        const script = document.createElement('script');
+        script.async = true;
+        script.dataset.googleAnalytics = '1';
+        script.src = 'https://www.googletagmanager.com/gtag/js?id=G-VCWMGXFYWP';
+        document.head.appendChild(script);
+    };
+    window.addEventListener('load', () => {
+        if ('requestIdleCallback' in window) requestIdleCallback(loadAnalytics, {timeout: 2500});
+        else setTimeout(loadAnalytics, 1500);
+    }, {once: true});
     </script>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
     @php

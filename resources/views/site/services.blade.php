@@ -23,10 +23,20 @@
                 $cardImageAlt = $cat->page?->service_image
                     ? ($cat->page->service_image_alt ?: $cat->name)
                     : ($cat->page?->banner_alt ?: $cat->name);
+                $cardImageCaption = $cat->page?->service_image
+                    ? $cat->page->service_image_caption
+                    : $cat->page?->banner_caption;
+                $cardImageFit = $cat->page?->service_image
+                    ? ($cat->page->service_image_fit ?: 'cover')
+                    : ($cat->page?->banner_image_fit ?: 'cover');
+                $cardImagePosition = $cat->page?->service_image
+                    ? ($cat->page->service_image_position_y ?? 50)
+                    : ($cat->page?->banner_image_position_y ?? 50);
             @endphp
             <a class="service-card tone-{{ ($i % 5) + 1 }}" href="{{ route('category', $cat) }}">
                 @if($cardImage)
-                    <img class="service-image" src="{{ Str::contains($cardImage, '/') ? asset('storage/'.$cardImage) : asset('uploads/'.$legacyDirectory.'/'.$cardImage) }}" alt="{{ $cardImageAlt }}" loading="lazy">
+                    <img class="service-image" src="{{ Str::contains($cardImage, '/') ? asset('storage/'.$cardImage) : asset('uploads/'.$legacyDirectory.'/'.$cardImage) }}" alt="{{ $cardImageAlt }}" loading="{{ $i < 3 ? 'eager' : 'lazy' }}" decoding="async" fetchpriority="{{ $i === 0 ? 'high' : 'auto' }}" width="640" height="480" style="object-fit:{{ $cardImageFit }};object-position:center {{ $cardImagePosition }}%">
+                    @if($cardImageCaption)<small class="image-caption card-image-caption">{{ $cardImageCaption }}</small>@endif
                 @else
                     <span class="service-icon">{{ $icons[$i] ?? '🎉' }}</span>
                 @endif

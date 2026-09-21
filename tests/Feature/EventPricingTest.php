@@ -19,7 +19,9 @@ class EventPricingTest extends TestCase
                 ->get(route('admin.events.create'))
                 ->assertOk()
                 ->assertSee('name="original_price"', false)
-                ->assertSee('name="sale_price"', false);
+                ->assertSee('name="sale_price"', false)
+                ->assertSee('name="content_title"', false)
+                ->assertSee('id="add-price-detail"', false);
 
             $this->post(route('admin.events.save'), [
                 'title' => 'Sản phẩm có giá kiểm tra',
@@ -28,12 +30,23 @@ class EventPricingTest extends TestCase
                 'content' => 'Nội dung sản phẩm có giá.',
                 'original_price' => 1200000,
                 'sale_price' => 900000,
+                'content_title' => 'Chi tiết mẫu trang trí',
+                'price_details' => [
+                    ['label' => 'Bao gồm', 'value' => 'Backdrop và bàn quà'],
+                    ['label' => 'Thời gian', 'value' => '3–4 giờ'],
+                    ['label' => '', 'value' => ''],
+                ],
                 'status' => 'published',
             ])->assertSessionHasNoErrors();
 
             $pricedEvent = Event::where('slug', $slug)->firstOrFail();
             $this->assertSame(1200000, $pricedEvent->original_price);
             $this->assertSame(900000, $pricedEvent->sale_price);
+            $this->assertCount(2, $pricedEvent->price_details);
+            $pricedEvent->images()->createMany([
+                ['image_path' => 'events/goc-chup-1.jpg', 'alt_text' => 'Góc chụp thứ nhất', 'display_fit' => 'contain', 'position_y' => 25, 'sort_order' => 0],
+                ['image_path' => 'events/goc-chup-2.jpg', 'alt_text' => 'Góc chụp thứ hai', 'sort_order' => 1],
+            ]);
 
             $this->get(route('events'))
                 ->assertOk()
@@ -43,7 +56,14 @@ class EventPricingTest extends TestCase
 
             $this->get(route('event', $pricedEvent))
                 ->assertOk()
-                ->assertDontSee('class="product-price"', false);
+                ->assertSee('data-product-gallery', false)
+                ->assertSee('data-product-src', false)
+                ->assertSee('data-product-fit="contain"', false)
+                ->assertSee('data-product-position-y="25"', false)
+                ->assertSee('class="product-price article-main-price"', false)
+                ->assertSee('class="product-price-table"', false)
+                ->assertSee('Chi tiết mẫu trang trí')
+                ->assertSee('Backdrop và bàn quà');
 
             $contactEvent = Event::create([
                 'title' => 'Sản phẩm giá liên hệ kiểm tra',

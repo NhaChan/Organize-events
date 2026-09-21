@@ -59,10 +59,17 @@ class AdminImageDeletionTest extends TestCase
             'sort_order' => 0,
         ]);
 
+        Storage::disk('public')->put('category-gallery/delete-gallery.jpg', 'gallery');
+        $galleryImage = $page->galleryImages()->create([
+            'image_path' => 'category-gallery/delete-gallery.jpg',
+            'alt_text' => 'Ảnh gallery',
+            'sort_order' => 0,
+        ]);
         $this->get(route('admin.categories.page', $category))
             ->assertOk()
             ->assertSee('delete-service-image', false)
             ->assertSee('delete-banner-image', false)
+            ->assertDontSee('delete-category-gallery-image-'.$galleryImage->id, false)
             ->assertSee('delete-block-image-'.$block->id, false);
 
         foreach (['service_image', 'banner_image'] as $field) {
@@ -72,6 +79,9 @@ class AdminImageDeletionTest extends TestCase
 
         $this->delete(route('admin.category-content-blocks.image.delete', $block))
             ->assertRedirect(route('admin.categories.page', $category));
+        $this->delete(route('admin.category-page-images.delete', $galleryImage))
+            ->assertRedirect(route('admin.categories.page', $category))
+            ->assertSessionHas('success');
 
         $page->refresh();
         $block->refresh();
@@ -82,6 +92,8 @@ class AdminImageDeletionTest extends TestCase
         Storage::disk('public')->assertMissing('category-services/delete-service.jpg');
         Storage::disk('public')->assertMissing('category-banners/delete-banner.jpg');
         Storage::disk('public')->assertMissing('category-content/delete-block.jpg');
+        Storage::disk('public')->assertMissing('category-gallery/delete-gallery.jpg');
+        $this->assertDatabaseMissing('category_page_images', ['id' => $galleryImage->id]);
 
         $event->delete();
         $block->delete();

@@ -41,10 +41,25 @@
             <div class="form-group"><label class="form-label">Tên dịch vụ *</label><input class="form-control-custom" name="name" value="{{ old('name', $edit->name) }}" required placeholder="Ví dụ: Trang trí bong bóng"></div>
             <div class="form-group"><label class="form-label">Slug SEO</label><div class="input-prefix"><span>/dich-vu/</span><input name="slug" value="{{ old('slug', $edit->slug) }}" placeholder="trang-tri-bong-bong"></div></div>
             <div class="form-group"><label class="form-label">Nhóm cha</label><select class="form-control-custom" name="parent_id"><option value="">- Dịch vụ chính -</option>@foreach($categories->whereNull('parent_id')->where('id', '!=', $edit->id) as $parent)<option value="{{ $parent->id }}" {{ (string) old('parent_id', $edit->parent_id) === (string) $parent->id ? 'selected' : '' }}>{{ $parent->name }}</option>@endforeach</select></div>
-            <div class="form-group"><label class="form-label">Mô tả SEO</label><textarea class="form-control-custom textarea" name="description" placeholder="Giới thiệu ngắn về dịch vụ...">{{ old('description', $edit->description) }}</textarea></div>
+            <div class="form-group"><label class="form-label">Mô tả SEO / dòng giới thiệu dưới H1</label><textarea class="form-control-custom textarea" id="category-list-meta-description" name="description" data-meta-description aria-describedby="category-list-meta-description-count" placeholder="Giới thiệu về dịch vụ...">{{ old('description', $edit->description) }}</textarea><div class="char-count" id="category-list-meta-description-count" data-meta-description-count aria-live="polite">0 ký tự · Khuyến nghị 140–160 ký tự</div><small class="form-help">Chỉ cảnh báo khi vượt khuyến nghị, không giới hạn và không cắt nội dung.</small></div>
             <button class="btn-primary-custom">{{ $edit->exists ? 'Lưu thay đổi' : 'Thêm dịch vụ' }}</button>
             @if($edit->exists)<a class="cancel-link" href="{{ route('admin.categories') }}">Hủy</a>@endif
         </form>
     </section>
 </div>
+<script>
+document.querySelectorAll("[data-meta-description]").forEach(input => {
+    const counter = document.getElementById(input.getAttribute("aria-describedby"));
+    const update = () => {
+        const length = Array.from(input.value || "").length;
+        const exceeded = Math.max(0, length - 160);
+        counter.textContent = exceeded
+            ? length + " ký tự — vượt khuyến nghị " + exceeded + " ký tự (vẫn có thể lưu)"
+            : length + " ký tự · Khuyến nghị 140–160 ký tự";
+        counter.classList.toggle("over-limit", exceeded > 0);
+    };
+    input.addEventListener("input", update);
+    update();
+});
+</script>
 @endsection

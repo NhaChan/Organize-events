@@ -1,7 +1,7 @@
 @extends('layouts.site')
 
 @section('title', ($category->page->page_title ?? $category->name).' - '.$settings['brand_name'])
-@section('description', Str::limit($category->description ?: 'Thông tin và hình ảnh dịch vụ '.$category->name, 155, ''))
+@section('description', $category->description ?: 'Thông tin và hình ảnh dịch vụ '.$category->name)
 @section('canonical', \App\Support\SeoUrl::route('category', $category, request()->integer('page', 1) > 1 ? ['page' => request()->integer('page')] : []))
 
 @section('content')
@@ -10,9 +10,10 @@
     $page = $category->page;
     $pageImage = $page?->banner_image ?: $page?->service_image;
     $pageImageDirectory = $page?->banner_image ? 'banners' : 'services';
-    $pageImageAlt = $page?->banner_image
-        ? ($page->banner_alt ?: $category->name)
-        : ($page?->service_image_alt ?: $category->name);
+    $pageImageAlt = $page?->banner_image ? $page->banner_alt : $page?->service_image_alt;
+    $pageImageCaption = $page?->banner_image ? $page->banner_caption : $page?->service_image_caption;
+    $pageImageFit = $page?->banner_image ? ($page->banner_image_fit ?: 'cover') : ($page?->service_image_fit ?: 'cover');
+    $pageImagePosition = $page?->banner_image ? ($page->banner_image_position_y ?? 50) : ($page?->service_image_position_y ?? 50);
 @endphp
 
 <!-- <section class="category-hero" aria-label="{{ $category->name }}">
@@ -23,14 +24,15 @@
 <section class="wrap category-posts">
     <header class="category-page-heading">
         <h1>{{ $page?->page_title ?: $category->name }}</h1>
-        @if($page?->subtitle || $category->description)
-            <p>{{ $page?->subtitle ?: $category->description }}</p>
+        @if($category->description)
+            <p>{{ $category->description }}</p>
         @endif
     </header>
 
     @if($pageImage)
         <figure class="category-page-banner">
-            <img src="{{ Str::contains($pageImage, '/') ? asset('storage/'.$pageImage) : asset('uploads/'.$pageImageDirectory.'/'.$pageImage) }}" alt="{{ $pageImageAlt }}">
+            <img src="{{ Str::contains($pageImage, '/') ? asset('storage/'.$pageImage) : asset('uploads/'.$pageImageDirectory.'/'.$pageImage) }}" alt="{{ $pageImageAlt ?: $category->name }}" style="object-fit:{{ $pageImageFit }};object-position:center {{ $pageImagePosition }}%">
+            @if($pageImageCaption)<figcaption class="image-caption">{{ $pageImageCaption }}</figcaption>@endif
         </figure>
     @endif
 
@@ -38,7 +40,7 @@
         <h2>Dịch vụ liên quan</h2>
         <div class="chips">@foreach($category->children as $child)<a href="{{ route('category', $child) }}">{{ $child->name }} →</a>@endforeach</div>
     @endif
-    <h2>Bài viết về {{ $category->name }}</h2>
+    <!-- <h2>Bài viết về {{ $category->name }}</h2> -->
     <div class="post-grid">@forelse($events as $event)<x-event-card :event="$event" />@empty<div class="empty-state">Dịch vụ này chưa có bài viết. Vui lòng liên hệ để được tư vấn trực tiếp.</div>@endforelse</div>
     @if($events->hasPages())
         <nav class="category-pagination" aria-label="Phân trang bài viết">
@@ -70,7 +72,10 @@
                         <div class="category-block-copy prose">{!! \App\Support\PostContent::paragraphs($block->content) !!}</div>
                     @endif
                     @if($block->image)
-                        <img src="{{ Str::contains($block->image, '/') ? asset('storage/'.$block->image) : asset('uploads/services/'.$block->image) }}" alt="{{ $block->image_alt }}" loading="lazy">
+                        <figure class="category-block-image">
+                            <div class="category-block-image-frame"><img src="{{ Str::contains($block->image, '/') ? asset('storage/'.$block->image) : asset('uploads/services/'.$block->image) }}" alt="{{ $block->image_alt }}" loading="lazy" decoding="async" style="object-fit:{{ $block->image_fit ?: 'cover' }};object-position:center {{ $block->image_position_y ?? 50 }}%"></div>
+                            @if($block->image_caption)<figcaption class="image-caption">{{ $block->image_caption }}</figcaption>@endif
+                        </figure>
                     @endif
                     @if($block->after_content)
                         <div class="category-block-copy prose">{!! \App\Support\PostContent::paragraphs($block->after_content) !!}</div>
@@ -93,4 +98,5 @@
         <section class="contact-banner compact"><div><span>SẴN SÀNG CHO NGÀY VUI?</span><h2>{{ $page->cta_text }}</h2><p>Trao đổi trực tiếp để nhận tư vấn phù hợp với không gian và ngân sách.</p></div><div class="contact-actions"><a href="{{ $page->cta_url ?: 'tel:'.preg_replace('/\s+/', '', $settings['phone']) }}">Liên hệ ngay</a></div></section>
     @endif
 @endif
+
 @endsection
