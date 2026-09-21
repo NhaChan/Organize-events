@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Admin;
 use App\Models\Event;
 use App\Support\PostContent;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class PostContentInternalLinkTest extends TestCase
@@ -22,6 +24,8 @@ class PostContentInternalLinkTest extends TestCase
         $this->assertStringContainsString('link xấu', $sanitized);
         $this->assertStringNotContainsString('javascript:', $sanitized);
         $this->assertStringNotContainsString('onclick', $sanitized);
+        $richContent = PostContent::sanitize("<h2>Tiêu đề giữa bài</h2><p><strong>Chữ đậm</strong> và <font size=\"5\">chữ lớn</font></p><ul><li>Mục một</li></ul>");
+        $this->assertSame("<h2>Tiêu đề giữa bài</h2><p><strong>Chữ đậm</strong> và <span class=\"text-size-large\">chữ lớn</span></p><ul><li>Mục một</li></ul>", $richContent);
         $this->assertStringNotContainsString('<script', $sanitized);
     }
 
@@ -34,6 +38,13 @@ class PostContentInternalLinkTest extends TestCase
             ->assertOk()
             ->assertSee('id="content-editor"', false)
             ->assertSee('id="insert-link"', false)
+            ->assertSee('id="insert-content-image"', false)
+            ->assertSee('id="content-image-dialog"', false)
+            ->assertSee('name="content_images[]"', false)
+            ->assertSee('data-rich-block="h2"', false)
+            ->assertSee('data-rich-block="h3"', false)
+            ->assertSee('data-rich-font-size="5"', false)
+            ->assertSee('data-rich-command="bold"', false)
             ->assertSee('name="after_gallery_title"', false)
             ->assertSee('name="after_gallery_content"', false)
             ->assertSee('id="new-image-descriptions"', false)
@@ -53,7 +64,7 @@ class PostContentInternalLinkTest extends TestCase
                     'title' => 'Kiểm tra internal link',
                     'slug' => $slug,
                     'summary' => 'Nội dung kiểm tra liên kết nội bộ.',
-                    'content' => 'Xem <a href="/dich-vu" onclick="alert(1)">các dịch vụ sự kiện</a>.',
+                    'content' => 'Xem <a href="/dich-vu" onclick="alert(1)">các dịch vụ sự kiện</a>.<h2>H2 đặt giữa bài</h2><p><strong>Nội dung nổi bật</strong></p>',
                     'after_gallery_title' => 'Nội dung do admin quản lý',
                     'after_gallery_content' => "Đoạn nội dung đầu tiên.\n\nĐoạn nội dung sau hình ảnh.",
                     'status' => 'published',
@@ -61,7 +72,7 @@ class PostContentInternalLinkTest extends TestCase
                 ->assertSessionHasNoErrors();
 
             $event = Event::where('slug', $slug)->firstOrFail();
-            $this->assertSame('Xem <a href="/dich-vu">các dịch vụ sự kiện</a>.', $event->content);
+            $this->assertSame('Xem <a href="/dich-vu">các dịch vụ sự kiện</a>.<h2>H2 đặt giữa bài</h2><p><strong>Nội dung nổi bật</strong></p>', $event->content);
             $this->assertSame('Nội dung do admin quản lý', $event->after_gallery_title);
             $this->assertSame("Đoạn nội dung đầu tiên.\n\nĐoạn nội dung sau hình ảnh.", $event->after_gallery_content);
 
@@ -98,6 +109,8 @@ class PostContentInternalLinkTest extends TestCase
             $this->get(route('event', $event))
                 ->assertOk()
                 ->assertSee('<a href="/dich-vu">các dịch vụ sự kiện</a>', false)
+                ->assertSee('<h2>H2 đặt giữa bài</h2>', false)
+                ->assertSee('<strong>Nội dung nổi bật</strong>', false)
                 ->assertSee('class="event-followup"', false)
                 ->assertSee('Nội dung do admin quản lý')
                 ->assertSee('Đoạn nội dung sau hình ảnh.')
@@ -112,4 +125,46 @@ class PostContentInternalLinkTest extends TestCase
             $event?->delete();
         }
     }
+    public function test_admin_can_insert_an_image_between_article_headings_without_adding_it_to_gallery(): void
+    {
+        Storage::fake("public");
+        $slug = "anh-trong-noi-dung-".uniqid();
+        $event = null;
+
+        try {
+            $this->actingAs(Admin::firstOrFail(), "admin")
+                ->post(route("admin.events.save"), [
+                    "title" => "Kiểm tra ảnh trong nội dung",
+                    "slug" => $slug,
+                    "summary" => "Kiểm tra ảnh chèn giữa các tiêu đề.",
+                    "content" => "<h2>Phần đầu</h2><figure data-content-image-token=\"0\"><img src=\"blob:test\" data-content-image-token=\"0\"><figcaption>Chú thích ảnh ở giữa bài</figcaption></figure><h3>Phần tiếp theo</h3>",
+                    "content_images" => [UploadedFile::fake()->image("anh-giua-bai.jpg", 1200, 800)],
+                    "content_image_alts" => ["Không gian trang trí trong bài viết"],
+                    "status" => "published",
+                ])
+                ->assertSessionHasNoErrors();
+
+            $event = Event::where("slug", $slug)->firstOrFail();
+            $this->assertSame(0, $event->images()->count());
+            $this->assertStringContainsString("<h2>Phần đầu</h2>", $event->content);
+            $this->assertStringContainsString("<h3>Phần tiếp theo</h3>", $event->content);
+            $this->assertStringContainsString("alt=\"Không gian trang trí trong bài viết\"", $event->content);
+            $this->assertStringContainsString("<figcaption>Chú thích ảnh ở giữa bài</figcaption>", $event->content);
+            preg_match("#/storage/(content-images/[^\"]+)#", $event->content, $matches);
+            $this->assertNotEmpty($matches[1] ?? null);
+            Storage::disk("public")->assertExists($matches[1]);
+
+            $this->get(route("event", $event))
+                ->assertOk()
+                ->assertSee("<figure>", false)
+                ->assertSee("<figcaption>Chú thích ảnh ở giữa bài</figcaption>", false);
+
+            $this->delete(route("admin.events.delete", $event))->assertSessionHasNoErrors();
+            Storage::disk("public")->assertMissing($matches[1]);
+            $event = null;
+        } finally {
+            if ($event) Event::whereKey($event->getKey())->delete();
+        }
+    }
+
 }

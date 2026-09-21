@@ -8,6 +8,7 @@ use App\Models\CategoryPageImage;
 use App\Models\Event;
 use App\Models\EventImage;
 use App\Support\PostContent;
+use App\Support\ImageOptimizer;
 use App\Support\SiteSettings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -63,12 +64,12 @@ class AdminController extends Controller
     {
         $event ??= new Event;
         $isCreating = ! $event->exists;
+        $oldInlineImagePaths = $this->inlineContentImagePaths($event->content);
         $normalizedSlug = filled($request->input('slug'))
             ? Str::slug($request->input('slug'))
             : (filled($request->input('title')) ? Str::slug($request->input('title')) : null);
         $request->merge([
             'slug' => $normalizedSlug,
-            'content' => PostContent::sanitize($request->input('content')),
             'image_contents' => $this->sanitizeContentList($request->input('image_contents')),
             'existing_image_contents' => $this->sanitizeContentList($request->input('existing_image_contents')),
         ]);
@@ -78,6 +79,10 @@ class AdminController extends Controller
             'category_id' => ['nullable', 'exists:categories,id'],
             'summary' => ['required_if:status,published', 'nullable', 'string', 'max:1000'],
             'content' => ['required_if:status,published', 'nullable', 'string'],
+            'content_images' => ['nullable', 'array', 'max:30'],
+            'content_images.*' => ['image', 'mimes:jpg,jpeg,png,webp,gif', 'max:6144'],
+            'content_image_alts' => ['nullable', 'array'],
+            'content_image_alts.*' => ['required', 'string', 'max:255'],
             'content_title' => ['nullable', 'string', 'max:255'],
             'after_gallery_title' => ['nullable', 'string', 'max:255'],
             'after_gallery_content' => ['nullable', 'string'],
@@ -146,6 +151,8 @@ class AdminController extends Controller
             'meta_description' => 'Meta Description',
         ]);
 
+        $data["content"] = $this->storeInlineContentImages($request, $data["content"] ?? null);
+
         $data['price_details'] = collect($data['price_details'] ?? [])
             ->map(fn (array $row) => [
                 'label' => trim($row['label'] ?? ''),
@@ -155,13 +162,16 @@ class AdminController extends Controller
             ->values()
             ->all() ?: null;
 
-        unset($data['extra_images'], $data['alt_texts'], $data['image_titles'], $data['image_contents'], $data['image_fits'], $data['image_positions'], $data['existing_alt_texts'], $data['existing_image_titles'], $data['existing_image_contents'], $data['existing_image_fits'], $data['existing_image_positions'], $data['had_thumbnail_upload'], $data['had_extra_images_upload']);
+        unset($data['content_images'], $data['content_image_alts'], $data['extra_images'], $data['alt_texts'], $data['image_titles'], $data['image_contents'], $data['image_fits'], $data['image_positions'], $data['existing_alt_texts'], $data['existing_image_titles'], $data['existing_image_contents'], $data['existing_image_fits'], $data['existing_image_positions'], $data['had_thumbnail_upload'], $data['had_extra_images_upload']);
         if ($request->hasFile('thumbnail')) {
             $this->removeFile($event->thumbnail);
-            $data['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');
+            $data['thumbnail'] = ImageOptimizer::store($request->file('thumbnail'), 'thumbnails', 1600);
         }
 
         $event->fill($data)->save();
+        foreach (array_diff($oldInlineImagePaths, $this->inlineContentImagePaths($event->content)) as $removedInlineImage) {
+            $this->removeFile($removedInlineImage);
+        }
 
         $existingImageIds = collect([
             array_keys((array) $request->input('existing_alt_texts', [])),
@@ -190,7 +200,7 @@ class AdminController extends Controller
 
         foreach ((array) $request->file('extra_images', []) as $index => $file) {
             $event->images()->create([
-                'image_path' => $file->store('events', 'public'),
+                'image_path' => ImageOptimizer::store($file, 'events'),
                 'title' => filled($request->input("image_titles.{$index}"))
                     ? trim($request->input("image_titles.{$index}"))
                     : null,
@@ -215,9 +225,35 @@ class AdminController extends Controller
     {
         if (! is_array($contents)) {
             return $contents;
+
+        }
+        return array_map(fn ($content) => PostContent::sanitize($content), $contents);
+    }
+
+    private function storeInlineContentImages(Request $request, ?string $content): ?string
+    {
+        $content ??= "";
+
+        foreach ((array) $request->file("content_images", []) as $index => $file) {
+            $pattern = "#<img\b[^>]*data-content-image-token=\"".preg_quote((string) $index, "#")."\"[^>]*>#iu";
+            if (! preg_match($pattern, $content)) {
+                continue;
+            }
+
+            $path = ImageOptimizer::store($file, "content-images");
+            $alt = trim((string) $request->input("content_image_alts.".$index));
+            $replacement = "<img src=\"/storage/".e($path)."\" alt=\"".e($alt)."\" loading=\"lazy\" decoding=\"async\">";
+            $content = preg_replace($pattern, $replacement, $content, 1) ?? $content;
         }
 
-        return array_map(fn ($content) => PostContent::sanitize($content), $contents);
+        return PostContent::sanitize($content);
+    }
+
+    private function inlineContentImagePaths(?string $content): array
+    {
+        preg_match_all("#/storage/(content-images/[a-zA-Z0-9/_\.-]+)#", $content ?? "", $matches);
+
+        return array_values(array_unique($matches[1] ?? []));
     }
 
     public function deleteEventThumbnail(Event $event)
@@ -243,6 +279,7 @@ class AdminController extends Controller
     public function deleteEvent(Event $event)
     {
         $this->removeFile($event->thumbnail);
+        foreach ($this->inlineContentImagePaths($event->content) as $inlineImage) { $this->removeFile($inlineImage); }
         $event->load('images')->images->each(fn ($image) => $this->removeFile($image->image_path));
         $event->delete();
 
@@ -395,7 +432,7 @@ class AdminController extends Controller
         foreach (['banner_image' => 'category-banners', 'service_image' => 'category-services'] as $field => $directory) {
             if ($request->hasFile($field)) {
                 $this->removeFile($page->{$field});
-                $data[$field] = $request->file($field)->store($directory, 'public');
+                $data[$field] = ImageOptimizer::store($request->file($field), $directory, $field === 'service_image' ? 1280 : 1920);
             } else {
                 unset($data[$field]);
             }
@@ -421,7 +458,7 @@ class AdminController extends Controller
 
         foreach ((array) $request->file('gallery_images', []) as $index => $file) {
             $page->galleryImages()->create([
-                'image_path' => $file->store('category-gallery', 'public'),
+                'image_path' => ImageOptimizer::store($file, 'category-gallery'),
                 'alt_text' => filled($request->input("gallery_alts.{$index}"))
                     ? trim($request->input("gallery_alts.{$index}"))
                     : null,
@@ -458,7 +495,7 @@ class AdminController extends Controller
 
             if ($imageFile) {
                 $this->removeFile($block->image);
-                $blockInput['image'] = $imageFile->store('category-content', 'public');
+                $blockInput['image'] = ImageOptimizer::store($imageFile, 'category-content');
             } else {
                 unset($blockInput['image']);
             }

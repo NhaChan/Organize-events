@@ -64,7 +64,7 @@
                 }
             @endphp
             <a class="home-service-card tone-{{ ($i % 5) + 1 }}" href="{{ route('category', $cat) }}">
-                <div class="home-service-visual">@if($serviceImage)<img src="{{ $serviceImage }}" alt="{{ $serviceAlt }}" loading="{{ $i < 4 ? 'eager' : 'lazy' }}" decoding="async" fetchpriority="{{ $i === 0 ? 'high' : 'auto' }}" width="640" height="480" style="object-fit:{{ $serviceFit }};object-position:center {{ $servicePosition }}%">@else<span>{{ $icons[$i] ?? '🎉' }}</span>@endif<b>{{ $cat->parent?->name ?: 'Dịch vụ' }}</b></div>
+                <div class="home-service-visual">@if($serviceImage)<img src="{{ $serviceImage }}" alt="{{ $serviceAlt }}" loading="{{ $i === 0 ? 'eager' : 'lazy' }}" decoding="async" fetchpriority="{{ $i === 0 ? 'high' : 'low' }}" width="640" height="480" style="object-fit:{{ $serviceFit }};object-position:center {{ $servicePosition }}%">@else<span>{{ $icons[$i] ?? '🎉' }}</span>@endif<b>{{ $cat->parent?->name ?: 'Dịch vụ' }}</b></div>
                 @if($serviceCaption)<small class="image-caption card-image-caption">{{ $serviceCaption }}</small>@endif
                 <div class="home-service-body"><span class="service-number">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span><div><h3>{{ $cat->name }}</h3><strong>Xem dịch vụ <b>→</b></strong></div></div>
             </a>

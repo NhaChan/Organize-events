@@ -581,6 +581,21 @@ body{@apply [padding-top:62px];}
 .product-quick-contact a{@apply [color:#e11d63] [font-weight:900] [white-space:nowrap];}
 .article h2{@apply [font-size:clamp(1.45rem,2.8vw,2rem)] [line-height:1.25] [margin:38px_0_16px];}
 .article>.event-content,.article>.event-image-notes,.article>.event-followup,.article>.event-actions{@apply [max-width:920px] [margin-left:auto] [margin-right:auto];}
+.article .event-content .prose h2{@apply [margin:32px_0_12px] [font-size:clamp(1.35rem,2.4vw,1.75rem)] [line-height:1.3];}
+.article .event-content .prose h3{@apply [margin:26px_0_10px] [font-size:clamp(1.15rem,2vw,1.4rem)] [line-height:1.35];}
+.article .event-content .prose p,.article .event-content .prose>div{@apply [margin:0_0_16px];}
+.article .event-content .prose ul,.article .event-content .prose ol{@apply [margin:14px_0_20px] [padding-left:26px];}
+.article .event-content .prose li{@apply [margin-bottom:7px];}
+.article .event-content .prose figure{@apply [margin:28px_0] [background:transparent];}
+.article .event-content .prose figure img{@apply [display:block] [width:100%] [height:auto] [max-height:760px] [object-fit:contain] [border-radius:14px] [background:#f8fafc];}
+.article .event-content .prose figure figcaption{@apply [margin-top:9px] [text-align:center] [font-size:.88rem] [font-style:italic] [color:#64748b] [background:transparent];}
+
+.article .event-content .prose blockquote{@apply [margin:22px_0] [padding:14px_18px] [border-left:4px_solid_var(--pink)] [background:#fff7fa] [color:#475569] [font-style:italic];}
+.article .prose .text-size-small{@apply [font-size:.88rem];}
+.article .prose .text-size-normal{@apply [font-size:1rem];}
+.article .prose .text-size-medium{@apply [font-size:1.15rem];}
+.article .prose .text-size-large{@apply [font-size:1.35rem];}
+
 .article .event-content .prose a{@apply ![color:#2563eb] ![text-decoration:none] ![border-bottom:0] [font-weight:700];}
 .article .event-content .prose a:hover{@apply ![color:var(--pink)];}
 .event-content,.event-image-notes,.event-followup{@apply [margin-top:34px];}
