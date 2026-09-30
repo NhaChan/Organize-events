@@ -15,6 +15,16 @@ class ImageOptimizer
             return $file->store($directory, 'public');
         }
 
+        // Images optimized in the admin browser are already small WebP files.
+        // Store them directly so the request does not encode every image twice.
+        if ($file->getMimeType() === 'image/webp' && $file->getSize() <= 2 * 1024 * 1024) {
+            $dimensions = @getimagesize($file->getRealPath());
+
+            if ($dimensions && max($dimensions[0], $dimensions[1]) <= $maxDimension) {
+                return $file->store($directory, 'public');
+            }
+        }
+
         try {
             $binary = file_get_contents($file->getRealPath());
             $optimized = self::encode($binary, $maxDimension);

@@ -20,8 +20,10 @@ class SiteController extends Controller
                 ->with([
                     'parent:id,name,slug',
                     'events' => fn ($query) => $query
+                        ->select(['id', 'category_id', 'title', 'slug', 'created_at'])
                         ->where('status', 'published')
                         ->latest()
+                        ->latest('id')
                         ->limit(5),
                 ])
                 ->orderByDesc('latest_published_at')

@@ -23,7 +23,7 @@
         <button class="add-block compact" id="add-price-detail" type="button">＋ Thêm dòng chi tiết giá</button>
     </section>
 </template>
-<div class="save-actions"><span class="count-pill" id="article-word-count" data-word-counter data-word-count-scope="#event-form" data-word-count-selector='[name="title"],[name="summary"],[name="content_title"],[name="after_gallery_title"],[name="after_gallery_content"],[name^="price_details"],[name^="existing_image_titles"],[data-extra-title],#content-editor,.js-content-editor' aria-live="polite">✍ Tổng nội dung: 0 từ</span><a class="btn-primary-custom [background:#64748b]" href="{{ route('admin.events') }}">← Danh sách</a><button form="event-form" type="submit" class="btn-primary-custom">💾 Lưu bài viết</button></div>
+<div class="save-actions"><span class="count-pill" id="article-word-count" data-word-counter data-word-count-scope="#event-form" data-word-count-selector='[name="title"],[name="summary"],[name="content_title"],[name="after_gallery_title"],[name="after_gallery_content"],[name^="price_details"],[name^="existing_image_titles"],[data-extra-title],#content-editor,.js-content-editor' aria-live="polite">✍ Tổng nội dung: 0 từ</span><span class="count-pill" id="save-upload-status" aria-live="polite" hidden></span><a class="btn-primary-custom [background:#64748b]" href="{{ route('admin.events') }}">← Danh sách</a><button id="save-event-button" form="event-form" type="submit" class="btn-primary-custom">💾 Lưu bài viết</button></div>
 @if($errors->any())<div class="validation-summary" id="validation-summary"><strong>Vui lòng kiểm tra {{ $errors->count() }} lỗi sau:</strong>@foreach($errors->messages() as $field => $messages)<button type="button" data-error-field="{{ $field }}">• {{ $messages[0] }}</button>@endforeach @if(old('had_thumbnail_upload') || old('had_extra_images_upload'))<p class="[margin:9px_0_0] [font-size:.82rem] [font-weight:800]">⚠ File ảnh không được trình duyệt giữ lại sau khi form báo lỗi. Vui lòng chọn lại {{ old('had_thumbnail_upload') ? 'ảnh chính' : '' }}{{ old('had_thumbnail_upload') && old('had_extra_images_upload') ? ' và ' : '' }}{{ old('had_extra_images_upload') ? 'ảnh phụ' : '' }} trước khi bấm lưu lại.</p>@endif</div>@endif
 <form id="event-form" method="post" enctype="multipart/form-data" action="{{ route('admin.events.save',$event->exists?$event:null) }}" data-confirm="Xác nhận lưu nội dung bài viết và các thiết lập SEO?" data-confirm-title="Lưu bài viết">@csrf<input type="hidden" name="had_thumbnail_upload" value="{{ old('had_thumbnail_upload') ? 1 : 0 }}"><input type="hidden" name="had_extra_images_upload" value="{{ old('had_extra_images_upload') ? 1 : 0 }}"><div class="form-grid"><div><div class="tab-btns"><button type="button" class="tab-btn active" data-tab="basic">📝 Cơ bản</button><button type="button" class="tab-btn" data-tab="images">🖼️ Hình ảnh</button><button type="button" class="tab-btn" data-tab="seo">🔍 SEO</button></div>
 <section id="tab-basic" class="tab-panel active section-card"><div class="form-group"><label class="form-label">Tiêu đề H1 <span class="required">*</span></label><input class="form-control-custom" name="title" maxlength="255" value="{{ old('title',$event->title) }}" required placeholder="Tên mẫu hoặc chủ đề bài viết..."><small class="form-help">Đây là H1 duy nhất, hiển thị cạnh thư viện ảnh.</small></div><div class="form-group"><label class="form-label">Slug URL</label><div class="input-prefix"><span>/bai-viet/</span><input name="slug" value="{{ old('slug',$event->slug) }}" placeholder="Tự tạo nếu để trống"></div><small class="form-help">Chữ thường, không dấu, phân cách bằng dấu gạch ngang.</small></div><div class="form-group"><label class="form-label">Mô tả ngắn cạnh H1</label><textarea class="form-control-custom textarea" name="summary" rows="5" maxlength="1000" placeholder="Giới thiệu ngắn, điểm nổi bật hoặc thông tin liên hệ...">{{ old('summary',$event->summary) }}</textarea></div><div class="form-group"><label class="form-label">Tiêu đề H2 của nội dung chính</label><input class="form-control-custom" name="content_title" maxlength="255" value="{{ old('content_title',$event->content_title) }}" placeholder="Để trống sẽ tự tạo từ H1"></div><div class="form-group"><label class="form-label">Nội dung dưới H2</label><div class="rich-editor-wrap"><div class="rich-editor-toolbar article-format-toolbar" aria-label="Định dạng nội dung"><button class="editor-tool rich-format" type="button" data-rich-block="p" title="Đoạn văn thường">Đoạn</button><button class="editor-tool rich-format" type="button" data-rich-block="h2" title="Tiêu đề H2 tại vị trí con trỏ">H2</button><button class="editor-tool rich-format" type="button" data-rich-block="h3" title="Tiêu đề H3 tại vị trí con trỏ">H3</button><span class="toolbar-separator"></span><button class="editor-tool rich-format" type="button" data-rich-command="bold" title="Chữ đậm"><strong>B</strong></button><button class="editor-tool rich-format" type="button" data-rich-command="italic" title="Chữ nghiêng"><em>I</em></button><button class="editor-tool rich-format" type="button" data-rich-command="underline" title="Gạch chân"><u>U</u></button><button class="editor-tool rich-format" type="button" data-rich-command="insertUnorderedList" title="Danh sách dấu chấm">• Danh sách</button><button class="editor-tool rich-format" type="button" data-rich-command="insertOrderedList" title="Danh sách đánh số">1. Danh sách</button><span class="toolbar-separator"></span><button class="editor-tool rich-format" type="button" data-rich-font-size="2" title="Chữ nhỏ">A−</button><button class="editor-tool rich-format" type="button" data-rich-font-size="3" title="Chữ thường">A</button><button class="editor-tool rich-format" type="button" data-rich-font-size="4" title="Chữ vừa">A＋</button><button class="editor-tool rich-format" type="button" data-rich-font-size="5" title="Chữ lớn">A＋＋</button><button class="editor-tool rich-format" type="button" data-rich-block="blockquote" title="Trích dẫn">❝ Trích dẫn</button><button class="editor-tool" id="insert-content-image" type="button" title="Chèn ảnh ngay tại vị trí con trỏ">🖼️ Chèn ảnh</button><button class="editor-tool" id="insert-link" type="button">🔗 Chèn liên kết</button><button class="editor-tool" id="remove-link" type="button">Bỏ liên kết</button><button class="editor-tool rich-format" type="button" data-rich-command="removeFormat" title="Xóa định dạng chữ">Xóa định dạng</button></div><div class="rich-editor" id="content-editor" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Nội dung đầy đủ của bài viết...">{!! \App\Support\PostContent::sanitize(old('content',$event->content)) !!}</div></div><textarea id="content-input" name="content" hidden>{{ old('content',$event->content) }}</textarea><input id="content-image-files" type="file" name="content_images[]" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden><div id="content-image-alt-inputs"></div><small class="link-help">Đặt con trỏ ở dòng cần tạo H2/H3 hoặc chèn ảnh; bôi đen đoạn chữ để đổi cỡ/định dạng. Nhấp đúp vào ảnh trong nội dung để xóa. Font ngoài website vẫn là Roboto.</small></div><div class="form-group"><label class="form-label">Tiêu đề H2 phần bổ sung</label><input class="form-control-custom" name="after_gallery_title" maxlength="255" value="{{ old('after_gallery_title',$event->after_gallery_title) }}" placeholder="Ví dụ: Kinh nghiệm chuẩn bị cho sự kiện"></div><div class="form-group"><label class="form-label">Nội dung phần bổ sung</label><textarea class="form-control-custom textarea" name="after_gallery_content" rows="10" placeholder="Nội dung bổ sung hiển thị cuối bài...">{{ old('after_gallery_content',$event->after_gallery_content) }}</textarea><small class="form-help">Xuống dòng hai lần để tách đoạn; để trống nếu không muốn hiển thị.</small></div><div class="form-row"><div class="form-group"><label class="form-label">Ngày tổ chức</label><input class="form-control-custom" type="datetime-local" name="event_date" value="{{ old('event_date',optional($event->event_date)->format('Y-m-d\TH:i')) }}"></div><div class="form-group"><label class="form-label">Địa điểm</label><input class="form-control-custom" name="location" value="{{ old('location',$event->location) }}" placeholder="TP. Hồ Chí Minh"></div></div></section>
@@ -155,7 +155,60 @@ const restoreSelection=()=>{if(!rangeIsInEditor(selectedRange,selectedEditor))re
 
 document.addEventListener('selectionchange',rememberSelection);
 document.addEventListener('input',event=>{if(event.target.matches('#content-editor,.js-content-editor'))syncEditor(event.target)});
-eventForm.addEventListener('submit',()=>allContentEditors().forEach(syncEditor));
+const saveEventButton=document.getElementById('save-event-button');
+const saveUploadStatus=document.getElementById('save-upload-status');
+const replaceInputFiles=(input,files)=>{const transfer=new DataTransfer();files.forEach(file=>transfer.items.add(file));input.files=transfer.files};
+const optimizeUploadImage=async(file,maxDimension)=>{
+    if(!file.type.startsWith('image/')||file.type==='image/gif')return file;
+    let source;
+    try{
+        source=await createImageBitmap(file);
+        const scale=Math.min(1,maxDimension/Math.max(source.width,source.height));
+        const width=Math.max(1,Math.round(source.width*scale));
+        const height=Math.max(1,Math.round(source.height*scale));
+        if(file.type==='image/webp'&&scale===1&&file.size<=2*1024*1024)return file;
+        const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+        canvas.getContext('2d',{alpha:true}).drawImage(source,0,0,width,height);
+        const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/webp',.82));
+        if(!blob||blob.size>=file.size)return file;
+        const filename=file.name.replace(/\.[^.]+$/, '')+'.webp';
+        return new File([blob],filename,{type:'image/webp',lastModified:file.lastModified});
+    }catch(error){console.warn('Không thể tối ưu ảnh trước khi tải lên:',file.name,error);return file}
+    finally{source?.close?.()}
+};
+const optimizeInputFiles=async(input,maxDimension,onProgress)=>{
+    if(!input?.files?.length)return;
+    const optimized=[];
+    for(const file of Array.from(input.files)){optimized.push(await optimizeUploadImage(file,maxDimension));onProgress()}
+    replaceInputFiles(input,optimized);
+};
+let preparingEventSubmit=false;
+eventForm.addEventListener('submit',async event=>{
+    allContentEditors().forEach(syncEditor);
+    // The first submit opens the shared confirmation dialog. Optimize only
+    // after confirmation, then perform one native submission.
+    if(eventForm.dataset.confirmed!=='1'||preparingEventSubmit)return;
+    event.preventDefault();
+    preparingEventSubmit=true;
+    const thumbnailUpload=document.querySelector('input[name="thumbnail"]');
+    const imageInputs=[thumbnailUpload,extraImagesInput,contentImageFiles].filter(Boolean);
+    const total=imageInputs.reduce((sum,input)=>sum+input.files.length,0);
+    let completed=0;
+    saveEventButton.disabled=true;
+    saveEventButton.textContent='⏳ Đang chuẩn bị ảnh...';
+    if(total){saveUploadStatus.hidden=false;saveUploadStatus.textContent='Đang tối ưu 0/'+total+' ảnh'}
+    const progress=()=>{completed++;saveUploadStatus.textContent='Đang tối ưu '+completed+'/'+total+' ảnh'};
+    try{
+        await optimizeInputFiles(thumbnailUpload,1600,progress);
+        await optimizeInputFiles(extraImagesInput,1920,progress);
+        await optimizeInputFiles(contentImageFiles,1920,progress);
+    }finally{
+        saveUploadStatus.hidden=false;
+        saveUploadStatus.textContent='⏳ Đang tải và lưu bài viết, vui lòng chờ...';
+        saveEventButton.textContent='⏳ Đang lưu...';
+        HTMLFormElement.prototype.submit.call(eventForm);
+    }
+});
 document.addEventListener('mousedown',event=>{if(event.target.closest('#insert-content-image,#insert-link,#remove-link,.js-insert-link,.js-remove-link,.rich-format'))event.preventDefault()});
 document.addEventListener("click", event => {
     const button = event.target.closest(".rich-format");

@@ -56,7 +56,11 @@ class EventPricingTest extends TestCase
 
             $this->get(route('event', $pricedEvent))
                 ->assertOk()
+                ->assertSee('class="product-article-heading"', false)
                 ->assertSee('data-product-gallery', false)
+                ->assertSee('data-gallery-previous', false)
+                ->assertSee('class="product-purchase-top"', false)
+                ->assertSee('class="product-phone"', false)
                 ->assertSee('data-product-src', false)
                 ->assertSee('data-product-fit="contain"', false)
                 ->assertSee('data-product-position-y="25"', false)
@@ -76,6 +80,12 @@ class EventPricingTest extends TestCase
             $this->get(route('events'))
                 ->assertOk()
                 ->assertSee('Giá liên hệ');
+
+            $this->get(route('event', $contactEvent))
+                ->assertOk()
+                ->assertSee('Giá liên hệ')
+                ->assertSee('class="product-phone"', false)
+                ->assertDontSee('class="product-contact-button', false);
 
             $this->get(route('events'))
                 ->assertOk()

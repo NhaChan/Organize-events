@@ -61,11 +61,20 @@
 <x-navigation-trail :category="$event->category" :current="$event->title" />
 
 <article class="article product-article">
+    <header class="product-article-heading">
+        <h1>{{ $event->title }}</h1>
+    </header>
+
     <section class="product-article-hero {{ $productImages->isEmpty() ? 'without-gallery' : '' }}">
         @if($productImages->isNotEmpty())
             <div class="event-product-gallery" data-product-gallery>
                 <div class="event-product-main">
                     <img src="{{ $productImages->first()['src'] }}" alt="{{ $productImages->first()['alt'] }}" data-product-main fetchpriority="high" decoding="async" style="object-fit:{{ $productImages->first()['fit'] }};object-position:center {{ $productImages->first()['position_y'] }}%">
+                    @if($productImages->count() > 1)
+                        <button class="event-gallery-arrow previous" type="button" data-gallery-previous aria-label="Xem ảnh trước"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+                        <button class="event-gallery-arrow next" type="button" data-gallery-next aria-label="Xem ảnh tiếp theo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+                        <span class="event-gallery-counter"><b data-gallery-current>1</b>/{{ $productImages->count() }}</span>
+                    @endif
                 </div>
                 @if($productImages->count() > 1)
                     <div class="event-product-thumbnails" aria-label="Chọn ảnh để xem">
@@ -79,10 +88,11 @@
             </div>
         @endif
 
-        <div class="product-article-summary">
-            <h1>{{ $event->title }}</h1>
-            <x-event-price :event="$event" class="article-main-price" />
-            @if($event->summary)<div class="product-lead">{!! nl2br(e($event->summary)) !!}</div>@endif
+        <aside class="product-article-summary" aria-label="Giá và thông tin liên hệ">
+            <div class="product-purchase-top">
+                <x-event-price :event="$event" class="article-main-price" />
+                <a class="product-phone" href="tel:{{ preg_replace('/\s+/', '', $settings['phone']) }}" aria-label="Gọi {{ $settings['phone'] }}">☎ <strong>{{ $settings['phone'] }}</strong></a>
+            </div>
 
             @if(!empty($event->price_details))
                 <dl class="product-price-table">
@@ -98,12 +108,10 @@
                 @if($event->location) · {{ $event->location }} @endif
                 · {{ $event->view_count }} lượt xem
             </p>
-            <div class="product-quick-contact">
-                <strong>Liên hệ tư vấn</strong>
-                <a href="tel:{{ preg_replace('/\s+/', '', $settings['phone']) }}">☎ {{ $settings['phone'] }}</a>
-            </div>
-        </div>
+        </aside>
     </section>
+
+    @if($event->summary)<div class="product-lead">{!! nl2br(e($event->summary)) !!}</div>@endif
 
     @if($event->content)
         <section class="event-content">
@@ -142,16 +150,44 @@
 document.querySelectorAll('[data-product-gallery]').forEach(gallery => {
     const mainImage = gallery.querySelector('[data-product-main]');
     const thumbnails = Array.from(gallery.querySelectorAll('[data-product-src]'));
-    thumbnails.forEach(button => button.addEventListener('click', () => {
+    const current = gallery.querySelector('[data-gallery-current]');
+    let activeIndex = 0;
+
+    const showImage = index => {
+        activeIndex = (index + thumbnails.length) % thumbnails.length;
+        const button = thumbnails[activeIndex];
         mainImage.src = button.dataset.productSrc;
         mainImage.alt = button.dataset.productAlt;
+        mainImage.animate(
+            [{ opacity: .35, transform: 'scale(.99)' }, { opacity: 1, transform: 'scale(1)' }],
+            { duration: 280, easing: 'ease-out' }
+        );
         mainImage.style.objectFit = button.dataset.productFit;
         mainImage.style.objectPosition = 'center ' + button.dataset.productPositionY + '%';
         thumbnails.forEach(item => {
             item.classList.toggle('active', item === button);
             item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
         });
-    }));
+        button.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+        if (current) current.textContent = activeIndex + 1;
+    };
+
+    thumbnails.forEach((button, index) => button.addEventListener('click', () => showImage(index)));
+    gallery.querySelector('[data-gallery-previous]')?.addEventListener('click', () => showImage(activeIndex - 1));
+    gallery.querySelector('[data-gallery-next]')?.addEventListener('click', () => showImage(activeIndex + 1));
+
+    let swipeStartX = null;
+    mainImage.addEventListener('pointerdown', event => {
+        swipeStartX = event.clientX;
+    });
+    mainImage.addEventListener('pointerup', event => {
+        if (swipeStartX === null) return;
+        const distance = event.clientX - swipeStartX;
+        swipeStartX = null;
+        if (Math.abs(distance) < 45) return;
+        showImage(activeIndex + (distance < 0 ? 1 : -1));
+    });
+    mainImage.addEventListener('pointercancel', () => swipeStartX = null);
 });
 </script>
 @endsection

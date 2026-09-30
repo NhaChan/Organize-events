@@ -26,6 +26,8 @@ class PostContentInternalLinkTest extends TestCase
         $this->assertStringNotContainsString('onclick', $sanitized);
         $richContent = PostContent::sanitize("<h2>Tiêu đề giữa bài</h2><p><strong>Chữ đậm</strong> và <font size=\"5\">chữ lớn</font></p><ul><li>Mục một</li></ul>");
         $this->assertSame("<h2>Tiêu đề giữa bài</h2><p><strong>Chữ đậm</strong> và <span class=\"text-size-large\">chữ lớn</span></p><ul><li>Mục một</li></ul>", $richContent);
+        $spacedHeadings = PostContent::sanitize('<div><br><br>Đoạn văn</div><h2><strong><br><br>Tiêu đề H2</strong></h2><br><br><p><br></p><h3><br>Tiêu đề H3</h3>');
+        $this->assertSame('<div>Đoạn văn</div><h2><strong>Tiêu đề H2</strong></h2><h3>Tiêu đề H3</h3>', $spacedHeadings);
         $this->assertStringNotContainsString('<script', $sanitized);
     }
 

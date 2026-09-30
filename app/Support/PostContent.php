@@ -100,8 +100,9 @@ class PostContent
         $content = trim($content);
 
         $html = nl2br(self::escape($content), false);
+        $html = strtr($html, $links + $images + $safeTags);
 
-        return strtr($html, $links + $images + $safeTags) ?: null;
+        return self::normalizeBlockSpacing($html) ?: null;
     }
 
     public static function paragraphs(mixed $content): ?string
@@ -124,6 +125,28 @@ class PostContent
         return $parts === []
             ? null
             : implode('', array_map(static fn (string $part): string => '<p>'.$part.'</p>', $parts));
+    }
+
+    private static function normalizeBlockSpacing(string $html): string
+    {
+        $blocks = 'p|div|h2|h3|blockquote|li';
+        $inline = 'strong|em|u|span';
+
+        $html = preg_replace(
+            '#(<(?:'.$blocks.')\b[^>]*>(?:\s*<(?:'.$inline.')\b[^>]*>)*)\s*(?:<br>\s*)+#iu',
+            '$1',
+            $html
+        ) ?? $html;
+        $html = preg_replace(
+            '#(?:<br>\s*)+(?=(?:</(?:'.$inline.')>\s*)*</(?:'.$blocks.')>)#iu',
+            '',
+            $html
+        ) ?? $html;
+        $html = preg_replace('#(?:<br>\s*)+(?=<(?:h2|h3)\b)#iu', '', $html) ?? $html;
+        $html = preg_replace('#(</(?:h2|h3)>)\s*(?:<br>\s*)+#iu', '$1', $html) ?? $html;
+        $html = preg_replace('#<(p|div)>\s*</\1>#iu', '', $html) ?? $html;
+
+        return trim($html);
     }
 
     private static function attribute(string $attributes, string $name): ?string

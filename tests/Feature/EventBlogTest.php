@@ -29,6 +29,30 @@ class EventBlogTest extends TestCase
         $this->get(route('event', $event))->assertOk()->assertSee($event->title)->assertSee('class="service-sidebar"', false);
     }
 
+    public function test_sidebar_shows_only_five_latest_title_links_per_category(): void
+    {
+        $response = $this->get('/bai-viet')
+            ->assertOk()
+            ->assertDontSee('service-sidebar-thumb', false)
+            ->assertDontSee('service-sidebar-copy', false);
+
+        $categories = $response->viewData('sidebarCategories');
+
+        foreach ($categories as $category) {
+            $expectedIds = Event::query()
+                ->where('category_id', $category->id)
+                ->where('status', 'published')
+                ->latest()
+                ->latest('id')
+                ->limit(5)
+                ->pluck('id')
+                ->all();
+
+            $this->assertLessThanOrEqual(5, $category->events->count());
+            $this->assertSame($expectedIds, $category->events->pluck('id')->all());
+        }
+    }
+
     public function test_home_uses_latest_child_categories_for_service_cards(): void
     {
         $expectedIds = Category::query()
