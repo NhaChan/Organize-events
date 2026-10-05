@@ -23,19 +23,20 @@
     <div class="section-header"><div><h2 class="section-title">Danh sách bài viết</h2><p class="section-note">{{ $events->total() }} bài viết được tìm thấy</p></div><span class="count-pill">Trang {{ $events->currentPage() }}/{{ max(1, $events->lastPage()) }}</span></div>
     <div class="table-scroll">
         <table class="custom-table post-table">
-            <thead><tr><th>Bài viết</th><th>Danh mục</th><th>Ngày sự kiện</th><th>Trạng thái</th><th>Lượt xem</th><th>Thao tác</th></tr></thead>
+            <thead><tr><th>Bài viết</th><th>Danh mục</th><th>Ngày sự kiện</th><th>Thời gian đăng</th><th>Trạng thái</th><th>Lượt xem</th><th>Thao tác</th></tr></thead>
             <tbody>
             @forelse($events as $event)
                 <tr>
                     <td class="post-main-cell"><a class="post-title-link" href="{{ route('admin.events.edit', $event) }}">{{ $event->title }}</a><small class="slug">/bai-viet/{{ $event->slug }}</small><small class="post-updated">Cập nhật {{ $event->updated_at->format('d/m/Y H:i') }}</small></td>
                     <td><span class="cat-badge default">{{ optional($event->category)->name ?: 'Chưa phân loại' }}</span></td>
                     <td>{{ optional($event->event_date)->format('d/m/Y H:i') ?: '-' }}</td>
+                    <td>{{ optional($event->published_at)->format('d/m/Y H:i') ?: 'Chưa đăng' }}</td>
                     <td><span class="status-badge {{ $event->status }}">{{ ['published'=>'Đã đăng','draft'=>'Bản nháp','archived'=>'Lưu trữ'][$event->status] ?? $event->status }}</span></td>
                     <td><span class="view-count">◉ {{ number_format($event->view_count) }}</span></td>
                     <td><div class="action-btns"><a class="act-btn edit" href="{{ route('admin.events.edit', $event) }}" title="Chỉnh sửa">✎</a>@if($event->status === 'published')<a class="act-btn view" href="{{ route('event', $event) }}" target="_blank" rel="noopener" title="Xem bài">↗</a>@endif<form method="post" action="{{ route('admin.events.delete', $event) }}" data-confirm="Xóa bài viết này? Hành động này không thể hoàn tác." data-confirm-title="Xác nhận xóa bài">@csrf @method('delete')<button class="act-btn delete" title="Xóa">×</button></form></div></td>
                 </tr>
             @empty
-                <tr><td colspan="6"><div class="admin-empty"><b>Không tìm thấy bài viết</b><span>Thử thay đổi bộ lọc hoặc tạo một bài viết mới.</span></div></td></tr>
+                <tr><td colspan="7"><div class="admin-empty"><b>Không tìm thấy bài viết</b><span>Thử thay đổi bộ lọc hoặc tạo một bài viết mới.</span></div></td></tr>
             @endforelse
             </tbody>
         </table>

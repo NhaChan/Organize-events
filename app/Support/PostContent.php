@@ -18,6 +18,19 @@ class PostContent
         $content = preg_replace('/__(?:POST_LINK|POST_TAG|POST_IMAGE)_[A-F0-9]{16}_\d+__/i', '', $content) ?? $content;
         $content = preg_replace('/<(script|style|iframe|object|embed|svg|math)\b[^>]*>.*?<\/\1\s*>/isu', '', $content) ?? $content;
 
+        // A rich-text editor represents an intentional Enter with a block tag
+        // or <br>. Newline characters inside an HTML source string are only
+        // formatting whitespace and must not create extra visual line breaks.
+        // Plain text still treats every newline as an intentional Enter.
+        $containsRichHtml = preg_match(
+            '/<\/?(?:a|img|br|p|div|h2|h3|blockquote|ul|ol|li|strong|b|em|i|u|font|span|figure|figcaption)\b/iu',
+            $content
+        ) === 1;
+        if ($containsRichHtml) {
+            $content = preg_replace('/>\s*\n\s*</u', '><', $content) ?? $content;
+            $content = preg_replace('/[ \t]*\n[ \t]*/u', ' ', $content) ?? $content;
+        }
+
         $links = [];
         $tokenPrefix = '__POST_LINK_'.strtoupper(substr(hash('sha256', $content), 0, 16)).'_';
         $content = preg_replace_callback('/<a\b([^>]*)>(.*?)<\/a\s*>/isu', function (array $match) use (&$links, $tokenPrefix) {
@@ -99,7 +112,7 @@ class PostContent
         $content = preg_replace("/\n{3,}/", "\n\n", $content) ?? $content;
         $content = trim($content);
 
-        $html = nl2br(self::escape($content), false);
+        $html = str_replace("<br>\n", '<br>', nl2br(self::escape($content), false));
         $html = strtr($html, $links + $images + $safeTags);
 
         return self::normalizeBlockSpacing($html) ?: null;
@@ -144,6 +157,11 @@ class PostContent
         ) ?? $html;
         $html = preg_replace('#(?:<br>\s*)+(?=<(?:h2|h3)\b)#iu', '', $html) ?? $html;
         $html = preg_replace('#(</(?:h2|h3)>)\s*(?:<br>\s*)+#iu', '$1', $html) ?? $html;
+        $html = preg_replace(
+            '#</('.$blocks.'|ul|ol)>\s*(?:<br>\s*)+(?=<(?:'.$blocks.'|ul|ol)\b)#iu',
+            '</$1>',
+            $html
+        ) ?? $html;
         $html = preg_replace('#<(p|div)>\s*</\1>#iu', '', $html) ?? $html;
 
         return trim($html);

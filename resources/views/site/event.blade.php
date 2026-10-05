@@ -103,20 +103,18 @@
                 </dl>
             @endif
 
-            <p class="product-meta">
-                Cập nhật {{ $event->updated_at->format('d/m/Y') }}
-                @if($event->location) · {{ $event->location }} @endif
-                · {{ $event->view_count }} lượt xem
-            </p>
+            @if($event->location)
+                <p class="product-meta">{{ $event->location }}</p>
+            @endif
         </aside>
     </section>
 
-    @if($event->summary)<div class="product-lead">{!! nl2br(e($event->summary)) !!}</div>@endif
+    @if($event->summary)<div class="product-lead content-copy">{!! \App\Support\PostContent::paragraphs($event->summary) !!}</div>@endif
 
     @if($event->content)
         <section class="event-content">
             <h2>{{ $event->content_title ?: 'Thông tin chi tiết về '.$event->title }}</h2>
-            <div class="prose">{!! \App\Support\PostContent::sanitize($event->content) !!}</div>
+            <div class="prose content-copy">{!! \App\Support\PostContent::paragraphs($event->content) !!}</div>
         </section>
     @endif
 
@@ -126,7 +124,7 @@
                 @if($image->title || $image->content)
                     <div class="event-image-note">
                         @if($image->title)<h3>{{ $image->title }}</h3>@endif
-                        @if($image->content)<div class="prose">{!! \App\Support\PostContent::sanitize($image->content) !!}</div>@endif
+                        @if($image->content)<div class="prose content-copy">{!! \App\Support\PostContent::paragraphs($image->content) !!}</div>@endif
                     </div>
                 @endif
             @endforeach
@@ -136,7 +134,7 @@
     @if($event->after_gallery_content)
         <section class="event-followup">
             <h2>{{ $event->after_gallery_title ?: 'Thông tin bổ sung' }}</h2>
-            <div class="prose">{!! nl2br(e($event->after_gallery_content)) !!}</div>
+            <div class="prose content-copy">{!! \App\Support\PostContent::paragraphs($event->after_gallery_content) !!}</div>
         </section>
     @endif
 

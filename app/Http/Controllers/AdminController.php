@@ -168,6 +168,10 @@ class AdminController extends Controller
             $data['thumbnail'] = ImageOptimizer::store($request->file('thumbnail'), 'thumbnails', 1600);
         }
 
+        if (($data['status'] ?? null) === 'published' && blank($event->published_at)) {
+            $data['published_at'] = now();
+        }
+
         $event->fill($data)->save();
         foreach (array_diff($oldInlineImagePaths, $this->inlineContentImagePaths($event->content)) as $removedInlineImage) {
             $this->removeFile($removedInlineImage);
@@ -215,10 +219,12 @@ class AdminController extends Controller
         }
 
         if ($isCreating) {
-            return redirect()->route('admin.events.create')->with('success', 'Đã thêm bài viết. Form đã được làm trống để bạn có thể nhập bài mới.');
+            return redirect(route('admin.events.edit', $event, false))
+                ->with('success', 'Đã thêm bài viết thành công. Bạn đang ở trang chỉnh sửa của bài vừa tạo.');
         }
 
-        return redirect()->route('admin.events.edit', $event)->with('success', 'Đã cập nhật bài viết.');
+        return redirect(route('admin.events.edit', $event, false))
+            ->with('success', 'Đã cập nhật bài viết.');
     }
 
     private function sanitizeContentList(mixed $contents): mixed

@@ -28,6 +28,10 @@ class PostContentInternalLinkTest extends TestCase
         $this->assertSame("<h2>Tiêu đề giữa bài</h2><p><strong>Chữ đậm</strong> và <span class=\"text-size-large\">chữ lớn</span></p><ul><li>Mục một</li></ul>", $richContent);
         $spacedHeadings = PostContent::sanitize('<div><br><br>Đoạn văn</div><h2><strong><br><br>Tiêu đề H2</strong></h2><br><br><p><br></p><h3><br>Tiêu đề H3</h3>');
         $this->assertSame('<div>Đoạn văn</div><h2><strong>Tiêu đề H2</strong></h2><h3>Tiêu đề H3</h3>', $spacedHeadings);
+        $this->assertSame('<p>Đoạn một</p><p>Đoạn hai</p>', PostContent::sanitize("<p>Đoạn một</p>\n<p>Đoạn hai</p>"));
+        $this->assertSame('<p>Dòng một<br>Dòng hai</p>', PostContent::sanitize('<p>Dòng một<br>Dòng hai</p>'));
+        $this->assertSame('<p>A line without a hard break</p>', PostContent::sanitize("<p>A line without\n a hard break</p>"));
+        $this->assertSame('First line<br>Second line', PostContent::sanitize("First line\nSecond line"));
         $this->assertStringNotContainsString('<script', $sanitized);
     }
 
@@ -61,7 +65,7 @@ class PostContentInternalLinkTest extends TestCase
         $event = null;
 
         try {
-            $this->actingAs(Admin::firstOrFail(), 'admin')
+            $response = $this->actingAs(Admin::firstOrFail(), 'admin')
                 ->post(route('admin.events.save'), [
                     'title' => 'Kiểm tra internal link',
                     'slug' => $slug,
@@ -73,6 +77,7 @@ class PostContentInternalLinkTest extends TestCase
                 ])
                 ->assertSessionHasNoErrors();
 
+            $response->assertRedirectContains('/admin/events/');
             $event = Event::where('slug', $slug)->firstOrFail();
             $this->assertSame('Xem <a href="/dich-vu">các dịch vụ sự kiện</a>.<h2>H2 đặt giữa bài</h2><p><strong>Nội dung nổi bật</strong></p>', $event->content);
             $this->assertSame('Nội dung do admin quản lý', $event->after_gallery_title);
@@ -126,6 +131,20 @@ class PostContentInternalLinkTest extends TestCase
         } finally {
             $event?->delete();
         }
+    }
+    public function test_saving_a_missing_article_preserves_input_in_the_create_form(): void
+    {
+        $this->actingAs(Admin::firstOrFail(), 'admin')
+            ->post('/admin/events/bai-viet-khong-con-ton-tai', [
+                'title' => 'Nội dung cần phục hồi',
+                'summary' => 'Phần mô tả cần được giữ lại.',
+                'content' => '<p>Nội dung bài viết cần được giữ lại.</p>',
+                'status' => 'draft',
+            ])
+            ->assertRedirect('/admin/events/create')
+            ->assertSessionHasErrors('event')
+            ->assertSessionHasInput('title', 'Nội dung cần phục hồi')
+            ->assertSessionHasInput('content', '<p>Nội dung bài viết cần được giữ lại.</p>');
     }
     public function test_admin_can_insert_an_image_between_article_headings_without_adding_it_to_gallery(): void
     {

@@ -48,6 +48,32 @@ services:
     networks:
       - event-blog
 
+  backup:
+    image: mysql:latest
+    restart: unless-stopped
+    entrypoint: ["/bin/bash", "/opt/backup/backup.sh"]
+    command: ["loop"]
+    environment:
+      TZ: ${BACKUP_TIMEZONE:-Asia/Ho_Chi_Minh}
+      BACKUP_TIME: ${BACKUP_TIME:-03:00}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+      BACKUP_UID: ${BACKUP_UID:-1000}
+      BACKUP_GID: ${BACKUP_GID:-1000}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-event_blog}
+      DB_USERNAME: ${DB_USERNAME:-event_blog}
+      DB_PASSWORD: ${DB_PASSWORD:-event_blog}
+    volumes:
+      - ./.docker/backup/backup.sh:/opt/backup/backup.sh:ro
+      - ./backups:/backups
+      - ./storage/app/public:/source/uploads:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - event-blog
+
 volumes:
   mysql-data:
   vendor:

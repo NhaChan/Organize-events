@@ -7,7 +7,7 @@
     <title>@yield('title') · Quản trị SEO</title>
     <x-tailwind-head css="tailwind-admin.css" />
 </head>
-<body class="font-sans antialiased">
+<body class="font-sans antialiased {{ request()->routeIs('admin.events.create', 'admin.events.edit') ? 'event-editor-page' : '' }}">
 <div class="sidebar-overlay" id="sidebar-overlay"></div>
 <aside class="sidebar" id="admin-sidebar">
     <a class="sidebar-brand" href="{{ route('admin.dashboard') }}">

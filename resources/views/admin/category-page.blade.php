@@ -52,9 +52,10 @@
         <section class="section-card">
             <h2 class="section-title">Tiêu đề trang</h2>
             <div class="form-group">
-                <label class="form-label">H1 của trang</label>
+                <label class="form-label">Tiêu đề SEO / H1 của trang</label>
                 <input class="form-control-custom" id="page-title-input" name="page_title" value="{{ old('page_title', $page->page_title) }}" placeholder="{{ $category->name }}">
                 <small class="title-counter" id="page-title-counter" aria-live="polite">0 / 60 ký tự</small>
+                <small class="form-help">Chỉ cần nhập một lần: nội dung này dùng cho H1 và tiêu đề Google; website tự nối tên thương hiệu ở cuối thẻ title.</small>
             </div>
             <div class="form-group"><label class="form-label">Meta Description / dòng giới thiệu dưới H1</label><textarea class="form-control-custom textarea" id="category-meta-description" name="category_description" rows="5" data-meta-description aria-describedby="category-meta-description-count" placeholder="Nhập Meta Description hiển thị dưới H1 và trên Google...">{{ old('category_description', $category->description) }}</textarea><div class="char-count" id="category-meta-description-count" data-meta-description-count aria-live="polite">0 ký tự · Khuyến nghị 140–160 ký tự</div><small class="form-help">Nội dung được giữ nguyên đầy đủ và vẫn lưu bình thường khi vượt khuyến nghị. Có thể kéo để mở rộng hoặc thu gọn.</small></div>
         </section>

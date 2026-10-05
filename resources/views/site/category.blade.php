@@ -1,7 +1,16 @@
 @extends('layouts.site')
 
-@section('title', ($category->page->page_title ?? $category->name).' - '.$settings['brand_name'])
-@section('description', $category->description ?: 'Thông tin và hình ảnh dịch vụ '.$category->name)
+@php
+    $categorySeoTitle = filled($category->page?->page_title)
+        ? trim($category->page->page_title)
+        : $category->name;
+    $categoryMetaDescription = filled($category->description)
+        ? trim($category->description)
+        : 'Thông tin và hình ảnh dịch vụ '.$category->name;
+@endphp
+
+@section('title', $categorySeoTitle.' - '.$settings['brand_name'])
+@section('description', $categoryMetaDescription)
 @section('canonical', \App\Support\SeoUrl::route('category', $category, request()->integer('page', 1) > 1 ? ['page' => request()->integer('page')] : []))
 
 @section('content')
@@ -23,9 +32,9 @@
 
 <section class="wrap category-posts">
     <header class="category-page-heading">
-        <h1>{{ $page?->page_title ?: $category->name }}</h1>
-        @if($category->description)
-            <p>{{ $category->description }}</p>
+        <h1>{{ $categorySeoTitle }}</h1>
+        @if(filled($categoryMetaDescription))
+            <div class="category-intro content-copy">{!! \App\Support\PostContent::paragraphs($categoryMetaDescription) !!}</div>
         @endif
     </header>
 
@@ -69,7 +78,7 @@
                         <h2>{{ $block->heading }}</h2>
                     @endif
                     @if($block->content)
-                        <div class="category-block-copy prose">{!! \App\Support\PostContent::paragraphs($block->content) !!}</div>
+                        <div class="category-block-copy prose content-copy">{!! \App\Support\PostContent::paragraphs($block->content) !!}</div>
                     @endif
                     @if($block->image)
                         <figure class="category-block-image">
@@ -78,7 +87,7 @@
                         </figure>
                     @endif
                     @if($block->after_content)
-                        <div class="category-block-copy prose">{!! \App\Support\PostContent::paragraphs($block->after_content) !!}</div>
+                        <div class="category-block-copy prose content-copy">{!! \App\Support\PostContent::paragraphs($block->after_content) !!}</div>
                     @endif
                 </article>
             @endforeach

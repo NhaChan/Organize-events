@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\SiteController;
 use App\Models\Category;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', fn () => redirect()->route('admin.login'))->name('login');
@@ -39,7 +40,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/events', [AdminController::class, 'events'])->name('events');
         Route::get('/events/create', [AdminController::class, 'eventForm'])->name('events.create');
         Route::get('/events/{event}/edit', [AdminController::class, 'eventForm'])->name('events.edit');
-        Route::post('/events/{event?}', [AdminController::class, 'saveEvent'])->name('events.save');
+        Route::post('/events/{event?}', [AdminController::class, 'saveEvent'])
+            ->name('events.save')
+            ->missing(function (Request $request) {
+                return redirect(route('admin.events.create', [], false))
+                    ->withErrors(['event' => 'Bài viết đang sửa không còn tồn tại. Nội dung chữ đã được giữ lại để bạn lưu thành bài mới. Vui lòng chọn lại các ảnh cần tải lên.'])
+                    ->withInput($request->except(['thumbnail', 'extra_images', 'content_images']));
+            });
         Route::delete('/events/{event}/thumbnail', [AdminController::class, 'deleteEventThumbnail'])->name('events.thumbnail.delete');
         Route::delete('/events/{event}', [AdminController::class, 'deleteEvent'])->name('events.delete');
         Route::delete('/images/{image}', [AdminController::class, 'deleteImage'])->name('images.delete');
