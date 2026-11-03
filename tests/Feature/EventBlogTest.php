@@ -29,27 +29,33 @@ class EventBlogTest extends TestCase
         $this->get(route('event', $event))->assertOk()->assertSee($event->title)->assertSee('class="service-sidebar"', false);
     }
 
-    public function test_sidebar_shows_only_five_latest_title_links_per_category(): void
+    public function test_sidebar_shows_parent_and_child_categories_without_loading_articles(): void
     {
         $response = $this->get('/bai-viet')
             ->assertOk()
-            ->assertDontSee('service-sidebar-thumb', false)
-            ->assertDontSee('service-sidebar-copy', false);
+            ->assertSee('Các dịch vụ')
+            ->assertDontSee('Danh mục chính → danh mục con');
 
         $categories = $response->viewData('sidebarCategories');
+        $expectedParentIds = Category::query()
+            ->whereNull('parent_id')
+            ->orderBy('name')
+            ->pluck('id')
+            ->all();
+
+        $this->assertSame($expectedParentIds, $categories->pluck('id')->all());
 
         foreach ($categories as $category) {
-            $expectedIds = Event::query()
-                ->where('category_id', $category->id)
-                ->where('status', 'published')
-                ->latest()
-                ->latest('id')
-                ->limit(5)
+            $expectedChildIds = Category::query()
+                ->where('parent_id', $category->id)
+                ->orderBy('name')
                 ->pluck('id')
                 ->all();
 
-            $this->assertLessThanOrEqual(5, $category->events->count());
-            $this->assertSame($expectedIds, $category->events->pluck('id')->all());
+            $this->assertNull($category->parent_id);
+            $this->assertTrue($category->relationLoaded('children'));
+            $this->assertFalse($category->relationLoaded('events'));
+            $this->assertSame($expectedChildIds, $category->children->pluck('id')->all());
         }
     }
 

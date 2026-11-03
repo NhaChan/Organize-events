@@ -14,20 +14,9 @@ class SiteController extends Controller
         $sidebarCategories = request()->routeIs('home')
             ? collect()
             : Category::query()
-                ->whereHas('events', fn ($query) => $query->where('status', 'published'))
-                ->withCount(['events as published_events_count' => fn ($query) => $query->where('status', 'published')])
-                ->withMax(['events as latest_published_at' => fn ($query) => $query->where('status', 'published')], 'created_at')
-                ->with([
-                    'parent:id,name,slug',
-                    'events' => fn ($query) => $query
-                        ->select(['id', 'category_id', 'title', 'slug', 'created_at'])
-                        ->where('status', 'published')
-                        ->latest()
-                        ->latest('id')
-                        ->limit(5),
-                ])
-                ->orderByDesc('latest_published_at')
-                ->orderByDesc('id')
+                ->whereNull('parent_id')
+                ->with(['children' => fn ($query) => $query->orderBy('name')])
+                ->orderBy('name')
                 ->get();
 
         return array_merge([

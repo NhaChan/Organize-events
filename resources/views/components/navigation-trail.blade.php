@@ -17,7 +17,14 @@
             <span>›</span><strong>{{ $pageLabel }}</strong>
         @else
             @if($trail || !empty($current))<span>›</span><a href="{{ route('events') }}">Bài viết</a>@endif
-            @foreach($trail as $item)<span>›</span><a href="{{ route('category', $item) }}">{{ $item->name }}</a>@endforeach
+            @foreach($trail as $item)
+                <span>›</span>
+                @if($loop->last && empty($current))
+                    <strong>{{ $item->name }}</strong>
+                @else
+                    <a href="{{ route('category', $item) }}">{{ $item->name }}</a>
+                @endif
+            @endforeach
             @if(!empty($current))<span>›</span><strong>{{ $current }}</strong>@endif
         @endif
     </nav>

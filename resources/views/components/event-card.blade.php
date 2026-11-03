@@ -1,4 +1,4 @@
 <article class="post-card"><a class="post-image" href="{{ route('event',$event) }}">@if($event->thumbnail)<img src="{{ Str::startsWith($event->thumbnail,'thumbnails/')?asset('storage/'.$event->thumbnail):asset('uploads/thumbnails/'.$event->thumbnail) }}" alt="{{ $event->thumbnail_alt ?: $event->title }}" loading="lazy" decoding="async" width="640" height="360" style="object-fit:{{ $event->thumbnail_fit ?: 'cover' }};object-position:center {{ $event->thumbnail_position_y ?? 50 }}%">@else<span>🎉</span>@endif<div class="post-category">{{ optional($event->category)->name ?: 'Sự kiện' }}</div><span class="post-image-more">Xem bài viết →</span></a>
-<div class="post-body"><h3><a href="{{ route('event',$event) }}">{{ $event->title }}</a></h3>
+<a class="post-body" href="{{ route('event',$event) }}" aria-label="Xem bài viết: {{ $event->title }}"><h3>{{ $event->title }}</h3>
 <!-- <p>{{ Str::limit($event->summary,115) }}</p> -->
-<x-event-price :event="$event" /></div></article>
+<x-event-price :event="$event" /></a></article>
